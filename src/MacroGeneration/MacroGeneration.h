@@ -5,7 +5,7 @@
 
 class MacroGenerator {
 public:
-    Action GenerateMacro(Action* actions);
+    Action GenerateMacro(std::vector<Action> actions);
 };
 
 #endif
