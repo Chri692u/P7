@@ -1,20 +1,21 @@
-#include "SASParser.h"
-#include "../Helpers/StringHelper.h"
+#include "SASParser.hh"
 
-SASPlan SASParser::Parse(std::filesystem::path path) {
-    std::ifstream stream(path);
-    std::string content( (std::istreambuf_iterator<char>(stream) ),
-                       (std::istreambuf_iterator<char>()    ) );
+using namespace std;
+
+SASPlan SASParser::Parse(filesystem::path path) {
+    ifstream stream(path);
+    string content( (istreambuf_iterator<char>(stream) ),
+                       (istreambuf_iterator<char>()    ) );
     stream.close();
     return Parse(content);
 }
 
-SASPlan SASParser::Parse(std::string SAS) {
-    std::vector<SASAction> actions;
+SASPlan SASParser::Parse(string SAS) {
+    vector<SASAction> actions;
     int cost;
-    std::stringstream ss(SAS);
-    std::string line;
-    while (std::getline(ss, line)) {
+    stringstream ss(SAS);
+    string line;
+    while (getline(ss, line)) {
         line = StringHelper::Trim(line);
         StringHelper::RemoveCharacter(&line, ')');
         StringHelper::RemoveCharacter(&line, '(');
@@ -28,27 +29,27 @@ SASPlan SASParser::Parse(std::string SAS) {
     return SASPlan(actions, cost);
 }
 
-std::vector<std::string> tokenize(std::string const &str, const char delim) {
-    std::stringstream ss(str);
-    std::vector<std::string> tokens;
+vector<string> tokenize(string const &str, const char delim) {
+    stringstream ss(str);
+    vector<string> tokens;
  
-    std::string s;
-    while (std::getline(ss, s, delim)) {
+    string s;
+    while (getline(ss, s, delim)) {
         tokens.push_back(s);
     }
     return tokens;
 }
 
-SASAction SASParser::ParseAction(std::string line) {
+SASAction SASParser::ParseAction(string line) {
     StringHelper::RemoveCharacter(&line, '\r');
     StringHelper::RemoveCharacter(&line, '\n');
-    std::vector<std::string> tokens = tokenize(line, ' ');
-    std::string actionName = tokens.front(); tokens.erase(tokens.begin());
-    std::vector<std::string> parameters = tokens;
+    vector<string> tokens = tokenize(line, ' ');
+    string actionName = tokens.front(); tokens.erase(tokens.begin());
+    vector<string> parameters = tokens;
     return SASAction(actionName, parameters);
 }
 
-int SASParser::ParseCost(std::string line) {
+int SASParser::ParseCost(string line) {
     int equalityIndex = line.find('=');
     if (equalityIndex == line.npos)
         return -1;
@@ -56,10 +57,10 @@ int SASParser::ParseCost(std::string line) {
     while (line.length() > 0 && !isdigit(line[0]))
         line = line.substr(1);
     
-    std::string strInt = "";
+    string strInt = "";
     while (line.length() > 0 && isdigit(line[0])) {
         strInt += line[0];
         line = line.substr(1);
     }
-    return std::atoi(strInt.c_str());
+    return atoi(strInt.c_str());
 }

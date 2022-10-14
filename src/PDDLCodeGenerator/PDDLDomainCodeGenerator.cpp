@@ -1,96 +1,78 @@
-#include "PDDLDomainCodeGenerator.h"
+#include "PDDLDomainCodeGenerator.hh"
 
 using namespace std;
 
-void PDDLDomainCodeGenerator::GenerateDomainFile(Domain* domain, string domainFile) {
+void PDDLDomainCodeGenerator::GenerateDomainFile(PDDLDomain* domain, string domainFile) {
 	ofstream file;
 	file.open(domainFile);
 	file << GenerateDomainString(domain);
 	file.close();
 }
 
-string PDDLDomainCodeGenerator::GenerateDomainString(Domain* domain) {
-	string out = "(define (domain " + domain->_name + ")\n";
-	out += GetRequirements(domain->_requirements) + "\n";
+string PDDLDomainCodeGenerator::GenerateDomainString(PDDLDomain* domain) {
+	string out = "(define (domain " + domain->name + ")\n";
+	out += GetRequirements(domain->requirements) + "\n";
 	out += "\n";
-	out += GetPredicates(domain->_predicates) + "\n";
+	out += GetPredicates(domain->predicates) + "\n";
 	out += "\n";
-	out += GetActions(domain->_actions) + "\n";
+	out += GetActions(domain->actions) + "\n";
 	out += "\n";
 	out += "\n)\n";
 	return out;
 }
 
-string PDDLDomainCodeGenerator::GetRequirements(StringList* requirements) {
+string PDDLDomainCodeGenerator::GetRequirements(vector<std::string> requirements) {
 	string retStr = "";
 	retStr += GetTabs(1) + "(:requirements\n";
 	retStr += GetTabs(2);
-	for (string i : *(requirements)) {
+	for (auto i : requirements) {
 		retStr += " " + i;
 	}
 	retStr += "\n" + GetTabs(1) + ")";
 	return retStr;
 }
 
-string PDDLDomainCodeGenerator::GetPredicates(PredicateList* predicates) {
+string PDDLDomainCodeGenerator::GetPredicates(vector<PDDLPredicate> predicates) {
 	string retStr = "";
 	retStr += GetTabs(1) + "(:predicates\n";
 	retStr += GetTabs(2);
-	for (Predicate* i : *(predicates)) {
+	for (auto i : predicates) {
 		retStr += GetPredicate(i);
 	}
 	retStr += "\n" + GetTabs(1) + ")";
 	return retStr;
 }
 
-string PDDLDomainCodeGenerator::GetActions(ActionList* actions) {
+string PDDLDomainCodeGenerator::GetActions(vector<PDDLAction> actions) {
 	string retStr = "";
-	for (Action* i : *(actions)) {
+	for (auto i : actions) {
 		retStr += GetAction(i) + "\n";
 	}
 	return retStr;
 }
 
-string PDDLDomainCodeGenerator::GetAction(Action* action) {
-	string retStr = GetTabs(1) + "(:action " + action->_name + "\n";
+string PDDLDomainCodeGenerator::GetAction(PDDLAction action) {
+	string retStr = GetTabs(1) + "(:action " + action.name + "\n";
 	retStr += GetTabs(2) + ":parameters (\n";
-	retStr += GetTabs(3);
-	for (string i : *(action->_params)) {
-		retStr += " " + i;
-	}
+	retStr += GetTabs(3) + GetPDDLArgs(action.parameters);
 	retStr += "\n";
 	retStr += GetTabs(2) + ")\n";
-	retStr += GetTabs(2) + ":precondition (\n";
-	retStr += GetTabs(3) + GetLiteralChain(action->_precond) + "\n";
+	retStr += GetTabs(2) + ":precondition (";
+	if (action.preconditions.size() > 1)
+		retStr += "and\n";
+	else
+		retStr += "\n";
+	for (auto i : action.preconditions)
+		retStr += GetTabs(3) + GetLiteral(i) + "\n";
 	retStr += GetTabs(2) + ")\n";
-	retStr += GetTabs(2) + ":effect (\n";
-	retStr += GetTabs(3) + GetLiteralChain(action->_effects) + "\n";
+	retStr += GetTabs(2) + ":effect (";
+	if (action.effects.size() > 1)
+		retStr += "and\n";
+	else
+		retStr += "\n";
+	for (auto i : action.effects)
+		retStr += GetTabs(3) + GetLiteral(i) + "\n";
 	retStr += GetTabs(2) + ")\n";
 	retStr += GetTabs(1) + ")\n";
-	return retStr;
-}
-
-string PDDLDomainCodeGenerator::GetPrecondition(Literal* predicate) {
-	if (!predicate->second) {
-		return "(not " + GetPredicate(predicate->first) + ")";
-	}
-	else
-	{
-		return GetPredicate(predicate->first);
-	}
-}
-
-string PDDLDomainCodeGenerator::GetLiteralChain(const vector<pair<Predicate*, bool>*>* chain) {
-	string retStr = "";
-	if (chain->size() > 1) {
-		retStr = "and ";
-		for (auto i : *(chain))
-			retStr += GetPrecondition(i) + " ";
-	}
-	else
-	{
-		for (auto i : *(chain))
-			retStr = GetPrecondition(i);
-	}
 	return retStr;
 }

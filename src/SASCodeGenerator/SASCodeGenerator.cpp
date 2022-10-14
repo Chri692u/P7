@@ -1,14 +1,21 @@
-#include "SASCodeGenerator.h"
+#include "SASCodeGenerator.hh"
 
 using namespace std;
 
 void SASCodeGenerator::GenerateCode(SASPlan plan, string targetFile) {
 	ofstream file;
 	file.open(targetFile);
-	for (SASAction action : plan.actions)
-		file << GetAction(action) + "\n";
-	file << "; cost = " << plan.cost << " (general cost)\n";
+	file << GenerateCodeString(plan, targetFile);
 	file.close();
+}
+
+
+string SASCodeGenerator::GenerateCodeString(SASPlan plan, string targetFile) {
+	string returnValue = "";
+	for (auto const& action : plan.actions)
+		returnValue += GetAction(action) + "\n";
+	returnValue += "; cost = " + to_string(plan.cost) + " (general cost)\n";
+	return returnValue;
 }
 
 string SASCodeGenerator::GetAction(SASAction action) {

@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
 
-#include "../../src/SASParser/SASParser.h"
+#include "../../src/SASParser/SASParser.hh"
 
 const std::string TAG = "SASParser ";
 

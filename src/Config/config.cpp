@@ -1,21 +1,23 @@
-#include "config.h"
-#include <string>
-#include <cstring>
-#include <iostream>
-#include "../../include/cxxopts.hpp"
+#include "config.hh"
+
 using namespace std;
 
-int Config::parseArgs(Config* config, int argc, char** argv){
-    cxxopts::Options options("P7","Insert what program does");
+int Config::ParseArgs(Config* config, int argc, char** argv){
+    cxxopts::Options options("P7","Pure magic reformulations :)");
+
+    config->DownwardOptions.Search.Description = GetSearchDesc();
+    config->DownwardOptions.Heuristic.Description = GetSearchDesc();
 
     options.add_options()
         ("h,help", "Print usage")
-        ("d,domain", "Name of domain file", cxxopts::value<std::string>()->default_value("domain.pddl"))
-        ("p,problem", "Name of problem file", cxxopts::value<std::string>()->default_value("problem.pddl"))
-        ("f,downwardpath", "fast-downward.py filepath", cxxopts::value<std::string>()->default_value("fast-downward.py"))
-        ("v,validatorpath", "validator filepath", cxxopts::value<std::string>()->default_value("validate"))
-        ("s,search", GetSearchDesc().c_str(), cxxopts::value<std::string>()->default_value("astar"))
-        ("e,evaluator", GetEvaluatorDesc().c_str(), cxxopts::value<std::string>()->default_value("blind"))
+        (config->DomainFile.Flag + "," + config->DomainFile.LongFlag, config->DomainFile.Description, cxxopts::value<std::string>()->default_value(config->DomainFile.DefaultContent))
+        (config->ProblemFile.Flag + "," + config->ProblemFile.LongFlag, config->ProblemFile.Description, cxxopts::value<std::string>()->default_value(config->ProblemFile.DefaultContent))
+        (config->DownwardPath.Flag + "," + config->DownwardPath.LongFlag, config->DownwardPath.Description, cxxopts::value<std::string>()->default_value(config->DownwardPath.DefaultContent))
+        (config->DebugMode.Flag + "," + config->DebugMode.LongFlag, config->DebugMode.Description)
+        (config->ValidatorPath.Flag + "," + config->ValidatorPath.LongFlag, config->ValidatorPath.Description, cxxopts::value<std::string>()->default_value(config->ValidatorPath.DefaultContent))
+        (config->Reformulator.Flag + "," + config->Reformulator.LongFlag, config->Reformulator.Description, cxxopts::value<std::string>()->default_value(config->Reformulator.DefaultContent))
+        (config->DownwardOptions.Search.Flag + "," + config->DownwardOptions.Search.LongFlag, config->DownwardOptions.Search.Description, cxxopts::value<std::string>()->default_value(config->DownwardOptions.Search.DefaultContent))
+        (config->DownwardOptions.Heuristic.Flag + "," + config->DownwardOptions.Heuristic.LongFlag, config->DownwardOptions.Heuristic.Description, cxxopts::value<std::string>()->default_value(config->DownwardOptions.Heuristic.DefaultContent))
     ;
 
     auto result = options.parse(argc, argv);
@@ -24,62 +26,63 @@ int Config::parseArgs(Config* config, int argc, char** argv){
         return 1;
     }
 
-    const string domainPath = StringHelper::Trim(result["d"].as<string>());
-    const string problemPath = StringHelper::Trim(result["p"].as<string>());
-    const string downwardpath = StringHelper::Trim(result["f"].as<string>());
-    const string validatorPath = StringHelper::Trim(result["v"].as<string>());
-    const string searchmethod = result["s"].as<string>();
-    const string heuristicmethod = result["e"].as<string>();
+    string domainPath = StringHelper::Trim(result[config->DomainFile.LongFlag].as<string>());
+    StringHelper::RemoveCharacter(&domainPath, '\'');
+    string problemPath = StringHelper::Trim(result[config->ProblemFile.LongFlag].as<string>());
+    StringHelper::RemoveCharacter(&problemPath, '\'');
+    string downwardpath = StringHelper::Trim(result[config->DownwardPath.LongFlag].as<string>());
+    StringHelper::RemoveCharacter(&downwardpath, '\'');
+    string validatorPath = StringHelper::Trim(result[config->ValidatorPath.LongFlag].as<string>());
+    StringHelper::RemoveCharacter(&validatorPath, '\'');
+    bool doValidate = false;
+    if (result[config->DebugMode.LongFlag].count() != 0)
+        doValidate = true;
+    const string searchmethod = result[config->DownwardOptions.Search.LongFlag].as<string>();
+    const string heuristicmethod = result[config->DownwardOptions.Heuristic.LongFlag].as<string>();
+    string reformulatorAlgorithm = result[config->Reformulator.LongFlag].as<string>();
+    StringHelper::Trim(&reformulatorAlgorithm);
 
-    config->path = downwardpath;
-    config->validatorPath = validatorPath;
-    config->domainFile = domainPath;
-    config->problemFile = problemPath;
-    config->opt = {.search = searchmethod, .heuristic = heuristicmethod};
+    config->DownwardPath.Content = downwardpath;
+    config->ValidatorPath.Content = validatorPath;
+    config->DebugMode.Content = doValidate;
+    config->DomainFile.Content = domainPath;
+    config->ProblemFile.Content = problemPath;
+    config->Reformulator.Content = reformulatorAlgorithm;
+    config->DownwardOptions.Search.Content = searchmethod;
+    config->DownwardOptions.Heuristic.Content = heuristicmethod;
 
     return 0;
 }
 
-template<typename ... Args>
-std::string string_format( const std::string& format, Args ... args )
-{
-    int size_s = std::snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
-    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
-    auto size = static_cast<size_t>( size_s );
-    std::unique_ptr<char[]> buf( new char[ size ] );
-    std::snprintf( buf.get(), size, format.c_str(), args ... );
-    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
-}
-
 // Options from here https://www.fast-downward.org/Doc/SearchEngine
 string Config::GetSearchDesc() {
-    return string_format("%s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n",
-    "Search Method",
-    "astar", "a* Search",
-    "eager", "eager best-first search",
-    "eager_greedy", "greedy search (eager)",
-    "eager_wastar", "eager weighted A*",
-    "ehc", "lazy enforced hill-climbing",
-    "iterated", "iterated search",
-    "lazy", "lazy best-first search",
-    "lazy_greedy", "greedy search (lazy)",
-    "lazy_wstar", "(weighted) A* search (lazy)");
+    return StringHelper::StringFormat("%s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n",
+        "Search Method",
+        "astar", "a* Search",
+        "eager", "eager best-first search",
+        "eager_greedy", "greedy search (eager)",
+        "eager_wastar", "eager weighted A*",
+        "ehc", "lazy enforced hill-climbing",
+        "iterated", "iterated search",
+        "lazy", "lazy best-first search",
+        "lazy_greedy", "greedy search (lazy)",
+        "lazy_wstar", "(weighted) A* search (lazy)");
 }
 
 // Options from here https://www.fast-downward.org/Doc/Evaluator
 string Config::GetEvaluatorDesc() {
-    return string_format("%s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n",
-    "Evaluator Method",
-    "add", "additive heuristic",
-    "blind", "blind heuristic",
-    "cea", "context-enchanced additive heuristic",
-    "cegar", "additive CEGAR heuristic",
-    "cg", "causal graph heuristic",
-    "ff", "FF heuristic",
-    "hm", "h^m heuristic",
-    "hmax", "Max heuristic",
-    "lmcut", "Landmark-cut heuristic",
-    "merge_and_shrink", "merge-and-shrink heuristic",
-    "operatorcounting", "Operator-counting heuristic",
-    "ipdb", "canonical pdb with hillclimbing algo");
+    return StringHelper::StringFormat("%s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n%-12s - %s\n",
+        "Evaluator Method",
+        "add", "additive heuristic",
+        "blind", "blind heuristic",
+        "cea", "context-enchanced additive heuristic",
+        "cegar", "additive CEGAR heuristic",
+        "cg", "causal graph heuristic",
+        "ff", "FF heuristic",
+        "hm", "h^m heuristic",
+        "hmax", "Max heuristic",
+        "lmcut", "Landmark-cut heuristic",
+        "merge_and_shrink", "merge-and-shrink heuristic",
+        "operatorcounting", "Operator-counting heuristic",
+        "ipdb", "canonical pdb with hillclimbing algo");
 }

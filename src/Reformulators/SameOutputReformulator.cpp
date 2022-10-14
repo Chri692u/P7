@@ -1,21 +1,13 @@
-#include "SameOutputReformulator.h"
+#include "SameOutputReformulator.hh"
 
-PDDLDocument SameOutputReformulator::ReformulatePDDL(PDDLDocument* inputPDDL) {
+using namespace std;
+
+PDDLInstance SameOutputReformulator::ReformulatePDDL(PDDLInstance* instance) {
 	cout << "Note, this reformulator is only for testing! Simply gives the same result back." << endl;
 	// Do Something and transform the input PDDL into a new PDDL format
-	Domain* domain = new Domain(inputPDDL->domain->_name);
-	domain->_requirements = inputPDDL->domain->_requirements;
-	domain->_predicates = inputPDDL->domain->_predicates;
-	domain->_actions = inputPDDL->domain->_actions;
+	PDDLInstance newInstance(instance->domain, instance->problem);
 
-	Problem* problem = new Problem(inputPDDL->problem->_name, inputPDDL->problem->_domain);
-	problem->_objects = inputPDDL->problem->_objects;
-	problem->_init = inputPDDL->problem->_init;
-	problem->_goal = inputPDDL->problem->_goal;
-
-	PDDLDocument newDocument(domain, problem);
-
-	return newDocument;
+	return newInstance;
 }
 
 SASPlan SameOutputReformulator::RebuildSASPlan(SASPlan* reformulatedSAS) {
