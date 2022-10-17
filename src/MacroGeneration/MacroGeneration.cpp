@@ -1,5 +1,6 @@
 #include "MacroGeneration.h"
 #include <algorithm>
+#include <unordered_set>
 
 using namespace std;
 
@@ -20,8 +21,8 @@ vector<string> GenerateParams(vector<PDDLAction> actions){
    vector<string> params;
    int size = actions.size();
 
-   for(int i = 0; i <= size; i++){
-      for(int j = 0; j <= actions[i].parameters.size(); j++){
+   for(int i = 0; i < size; i++){
+      for(int j = 0; j < actions[i].parameters.size(); j++){
          params.push_back((actions[i].parameters)[j] + to_string(i));
       }
    }
@@ -32,17 +33,37 @@ vector<string> GenerateParams(vector<PDDLAction> actions){
 vector<PDDLLiteral> GeneratePrecons(vector<PDDLAction> actions){
    vector<PDDLLiteral> precons;
    int size = actions.size();
-
-   for(int i = 0; i <= size; i++){
+   int n = 0;
+   for(int i = 0; i < size; i++){
       int size2 = actions[i].preconditions.size();
-      for(int j = 0; j <= size2; j++){
-         precons.push_back(actions[i].preconditions[j]);
+      for(int j = 0; j < size2; j++){
+         PDDLLiteral lit = PDDLLiteral(actions[i].preconditions[j].predicateIndex, 
+         GenerateLitParams(n, actions[i].preconditions[j].args.size()), actions[i].preconditions[j].value);
+         precons.push_back(lit);
       }
    }
 }
 
 vector<PDDLLiteral> GenerateEffs(vector<PDDLAction> actions){
+   vector<PDDLLiteral> effects;
+   int size = actions.size();
+   int n = 0;
+   for(int i = 0; i < size; i++){
+      int size2 = actions[i].effects.size();
+      for(int j = 0; j < size2; j++){
+         PDDLLiteral lit = PDDLLiteral(actions[i].effects[j].predicateIndex, 
+         GenerateLitParams(n, actions[i].effects[j].args.size()), actions[i].effects[j].value);
+         effects.push_back(lit);
+      }
+   }
+}
 
+vector<unsigned int> GenerateLitParams(int offset, int size){
+   vector<unsigned int> res;
+   for(int i = 0; i < size; i++){
+      res.push_back(i + offset);
+   }
+   return res;
 }
 /*
 StringList MultiUnion(vector<PDDLAction> actions) {
