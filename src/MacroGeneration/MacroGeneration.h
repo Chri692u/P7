@@ -1,11 +1,11 @@
 #ifndef _MACROGEN
 #define _MACROGEN
 
-#include "../PDDLParser/domain.hh"
+#include "../IntermediatePDDL/PDDLdomain.hh"
 
 class MacroGenerator {
 public:
-    Action GenerateMacro(std::vector<Action> actions);
+    PDDLAction GenerateMacro(std::vector<PDDLAction> actions);
 };
 
 #endif
