@@ -42,9 +42,10 @@ set(SOURCES
 	"src/Walker/WidthFunctions/ConstantWidthFunction.cpp"
 	# Path Checkers
 	"src/PathCheckers/PathChecker.cpp"
+	# Macros
+	"src/MacroGeneration/MacroGeneration.cpp"
 
-	# Something new
-	
+	# Something new ᓚᘏᗢ
 
 )
 add_executable (P7 "src/P7.cpp" ${SOURCES})
