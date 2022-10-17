@@ -1,8 +1,5 @@
 #include "MacroGeneration.h"
 #include <algorithm>
-#include <format>
-#include <string>
-#include <string_view>
 
 using namespace std;
 
@@ -20,21 +17,28 @@ string GenerateName(vector<PDDLAction> actions){
 }
 
 vector<string> GenerateParams(vector<PDDLAction> actions){
-   ParameterList params;
-   StringList params_first;
-   TypeDict params_second;
+   vector<string> params;
    int size = actions.size();
 
    for(int i = 0; i <= size; i++){
-      for(int j = 0; j <= actions[i]._params->size(); j++){
-         params_first.push_back((*actions[i]._params)[j] + to_string(i));
-          
+      for(int j = 0; j <= actions[i].parameters.size(); j++){
+         params.push_back((actions[i].parameters)[j] + to_string(i));
       }
    }
+
+   return params;
 }
 
 vector<PDDLLiteral> GeneratePrecons(vector<PDDLAction> actions){
-   
+   vector<PDDLLiteral> precons;
+   int size = actions.size();
+
+   for(int i = 0; i <= size; i++){
+      int size2 = actions[i].preconditions.size();
+      for(int j = 0; j <= size2; j++){
+         precons.push_back(actions[i].preconditions[j]);
+      }
+   }
 }
 
 vector<PDDLLiteral> GenerateEffs(vector<PDDLAction> actions){
