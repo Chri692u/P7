@@ -6,7 +6,7 @@
 
 class MacroGenerator {
 public:
-    PDDLActionInstance GenerateMacro(std::vector<PDDLAction> actions);
+    PDDLAction GenerateMacro(std::vector<PDDLAction> actions);
 };
 
 #endif
