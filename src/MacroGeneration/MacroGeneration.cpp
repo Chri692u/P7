@@ -11,9 +11,8 @@ PDDLAction MacroGenerator::GenerateMacro(vector<PDDLAction> actions) {
 
 string GenerateName(vector<PDDLAction> actions){
    string name= "";
-   int size = actions.size();
-   for(int i = 0; i <= size; i++){
-      name = name + actions[i].name + "-";
+   for(PDDLAction i : actions){
+      name = name + i.name + "-";
    }
 }
 
@@ -22,8 +21,8 @@ vector<string> GenerateParams(vector<PDDLAction> actions){
    int size = actions.size();
 
    for(int i = 0; i < size; i++){
-      for(int j = 0; j < actions[i].parameters.size(); j++){
-         params.push_back((actions[i].parameters)[j] + to_string(i));
+      for(string j : actions[i].parameters){
+         params.push_back(j + to_string(i));
       }
    }
 
