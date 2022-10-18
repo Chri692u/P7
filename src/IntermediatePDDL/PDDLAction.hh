@@ -16,6 +16,9 @@ struct PDDLAction {
     PDDLAction() : name("Not Set") {};
     PDDLAction(std::string name, std::vector<std::string> parameters, std::vector<PDDLLiteral> preconditions, std::vector<PDDLLiteral> effects) : 
         name(name), parameters(parameters), preconditions(preconditions), effects(effects) {};
+    
+    std::vector<PDDLLiteral> GetAdds();
+    std::vector<PDDLLiteral> GetDeletes();
 };
 
 #endif
