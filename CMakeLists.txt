@@ -31,7 +31,7 @@ set(SOURCES
 	# Plan Validator
 	"src/PlanValidators/PlanValidator.cpp" 
     # PDDL Types
-	"src/IntermediatePDDL/PDDLConverter.cpp" "src/IntermediatePDDL/PDDLAction.hh" "src/IntermediatePDDL/PDDLLiteral.hh" "src/IntermediatePDDL/PDDLDomain.hh" "src/IntermediatePDDL/PDDLPredicate.hh" "src/IntermediatePDDL/PDDLProblem.hh" "src/IntermediatePDDL/PDDLInstance.hh" "src/IntermediatePDDL/PDDLState.hh"
+	"src/IntermediatePDDL/PDDLConverter.cpp" "src/IntermediatePDDL/PDDLAction.hh" "src/IntermediatePDDL/PDDLAction.cpp" "src/IntermediatePDDL/PDDLLiteral.hh" "src/IntermediatePDDL/PDDLDomain.hh" "src/IntermediatePDDL/PDDLPredicate.hh" "src/IntermediatePDDL/PDDLProblem.hh" "src/IntermediatePDDL/PDDLInstance.hh" "src/IntermediatePDDL/PDDLState.hh"
 	# Walker
 	"src/Walker/ActionGenerator.cpp" "src/Walker/Walker.cpp"
 	## Heuristics
