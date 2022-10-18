@@ -40,6 +40,7 @@ vector<PDDLLiteral> GeneratePrecons(vector<PDDLAction> actions){
          PDDLLiteral lit = PDDLLiteral(actions[i].preconditions[j].predicateIndex, 
          GenerateLitParams(n, actions[i].preconditions[j].args.size()), actions[i].preconditions[j].value);
          precons.push_back(lit);
+         n += actions[i].preconditions[j].args.size();
       }
    }
 }
@@ -65,19 +66,17 @@ vector<unsigned int> GenerateLitParams(int offset, int size){
    }
    return res;
 }
-/*
-StringList MultiUnion(vector<PDDLAction> actions) {
-   int size = actions.size();
-   StringList res;
-   StringList intermediate1;
-   StringList intermediate2;
 
-   for(int i = 0; i <= size; i++){
-      intermediate1 = *(actions[i]._params);
-      sort(intermediate1.begin(), intermediate1.end());
-      set_union(intermediate1.begin(), intermediate1.end(), res.begin(), res.end(), intermediate2.begin());
-      res = intermediate2;
+PDDLActionInstance MacroGenerator::GenerateGroundedMacro(vector<PDDLActionInstance> actions){
+   PDDLAction* macro_action;
+   int size = actions.size();
+   vector<PDDLAction> input_actions;
+   unordered_set<unsigned int> objects;
+
+   for(int i = 0; i < size; i++){
+      input_actions.push_back(*actions[i].action);
    }
-   return res;
+   macro_action = &GenerateMacro(input_actions);
+
+
 }
-*/
