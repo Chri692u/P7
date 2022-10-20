@@ -1,6 +1,7 @@
 #include "MacroGeneration.h"
 #include <algorithm>
 #include <unordered_set>
+#include <set>
 
 using namespace std;
 
@@ -9,32 +10,41 @@ PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> acti
    for (PDDLActionInstance actionInstance : actions) {
       actionTypes.push_back(*actionInstance.action);
    }
-   PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
-   return *macro;
+   //PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
+   //return *macro;
 }
 
-// need to make naming more unique
-string GenerateName(vector<PDDLAction> actions){
+string MacroGenerator::GenerateName(vector<PDDLAction> actions){
    string name= "";
    for(PDDLAction i : actions){
       name = name + i.name + "-";
    }
+   macro_counter++;
+   return name + macro_counter;
 }
 
 vector<string> GenerateParams(vector<PDDLActionInstance> actions){
-   // vector<string> params;
-   // int size = actions.size();
+   set<unsigned int> unique_parameters = GetUniqueParams(actions);
+   vector<string> params;
+   for (unsigned int obj : unique_parameters) {
+      params.push_back("var" + to_string(obj))
+   }
+   return params;
+}
 
-   // for(int i = 0; i < size; i++){
-   //    for(string j : actions[i].parameters){
-   //       params.push_back(j + to_string(i));
-   //    }
-   // }
-
-   // return params;
+set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
+   set<unsigned int> unique_parameters;
+   for (PDDLActionInstance inst : actions) {
+      for (unsigned int obj : inst.objects) {
+         unique_parameters.insert(obj);
+      }
+   }
+   return unique_parameters;
 }
 
 vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions){
+   set<unsigned int> unique_parameters = GetUniqueParams(actions);
+   
    // vector<PDDLLiteral> precons;
    // int size = actions.size();
    // int n = 0;

@@ -5,6 +5,9 @@
 #include "../IntermediatePDDL/PDDLActionInstance.hh"
 
 class MacroGenerator {
+private:
+    int macro_counter = 0;
+    string GenerateName(vector<PDDLAction> actions);
 public:
     PDDLActionInstance GenerateMacro(std::vector<PDDLActionInstance> actions);
 };
