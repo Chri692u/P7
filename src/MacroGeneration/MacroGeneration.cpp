@@ -10,7 +10,6 @@ PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> acti
       actionTypes.push_back(*actionInstance.action);
    }
    PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
-   
    return *macro;
 }
 
@@ -22,7 +21,7 @@ string GenerateName(vector<PDDLAction> actions){
    }
 }
 
-vector<string> GenerateParams(vector<PDDLAction> actions){
+vector<string> GenerateParams(vector<PDDLActionInstance> actions){
    // vector<string> params;
    // int size = actions.size();
 
@@ -35,7 +34,7 @@ vector<string> GenerateParams(vector<PDDLAction> actions){
    // return params;
 }
 
-vector<PDDLLiteral> GeneratePrecons(vector<PDDLAction> actions){
+vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions){
    // vector<PDDLLiteral> precons;
    // int size = actions.size();
    // int n = 0;
@@ -50,7 +49,7 @@ vector<PDDLLiteral> GeneratePrecons(vector<PDDLAction> actions){
    // }
 }
 
-vector<PDDLLiteral> GenerateEffs(vector<PDDLAction> actions){
+vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
    // vector<PDDLLiteral> effects;
    // int size = actions.size();
    // int n = 0;
