@@ -1,50 +1,76 @@
 #include "MacroGeneration.h"
 #include <algorithm>
 #include <unordered_set>
-#include <set>
 
 using namespace std;
 
-PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> actions) {
-   vector<PDDLAction> actionTypes;
-   for (PDDLActionInstance actionInstance : actions) {
-      actionTypes.push_back(*actionInstance.action);
+PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance>* actions) {
+   // vector<PDDLAction> actionTypes;
+   // for (PDDLActionInstance actionInstance : actions) {
+   //    actionTypes.push_back(*actionInstance.action);
+   // }
+   // PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
+   // return *macro;
+   int size = actions->size();
+   int last = size - 1;
+   PDDLActionInstance* macro;
+   map<unsigned int, pair<int, int>> param_map;
+
+   for(int i = 0; i < size; i++){
+      param_map = GenerateParamMap((*actions)[i], (*actions)[last]);
+      macro = new PDDLActionInstance(new PDDLAction(
+      GenerateName((*actions)[i], (*actions)[last]), 
+      GenerateParams((*actions)[i], (*actions)[last], param_map, i),
+      GeneratePrecons((*actions)[i], (*actions)[last]),
+      GenerateEffs((*actions)[i], (*actions)[last])
+      ), GenerateObjects((*actions)[i], (*actions)[last]));
+      (*actions).insert((*actions).end() - 1, (*macro));
    }
-   //PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
-   //return *macro;
+   return *macro;
 }
 
-string MacroGenerator::GenerateName(vector<PDDLAction> actions){
-   string name= "";
-   for(PDDLAction i : actions){
-      name = name + i.name + "-";
-   }
-   macro_counter++;
-   return name + macro_counter;
-}
+map<unsigned int, pair<int, int>> GenerateParamMap(PDDLActionInstance action1, PDDLActionInstance action2){
+   map<unsigned int, pair<int, int>> res;
+   int size = action1.action->parameters.size();
 
-vector<string> GenerateParams(vector<PDDLActionInstance> actions){
-   set<unsigned int> unique_parameters = GetUniqueParams(actions);
-   vector<string> params;
-   for (unsigned int obj : unique_parameters) {
-      params.push_back("var" + to_string(obj))
+   for(int i = 0; i < size; i++){
+      res.insert(pair<unsigned int, pair<int, int>>(action1.objects[i], pair<int, int>(i, -1)));
    }
-   return params;
-}
 
-set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
-   set<unsigned int> unique_parameters;
-   for (PDDLActionInstance inst : actions) {
-      for (unsigned int obj : inst.objects) {
-         unique_parameters.insert(obj);
+   size = action2.action->parameters.size();
+
+   for(int i = 0; i < size; i++){
+      if(res.find(action2.objects[i]) != res.end()){
+         res[action2.objects[i]].second = i;
+      }
+      else {
+         res.insert(pair<unsigned int, pair<int, int>>(action2.objects[i], pair<int, int>(-1, i)));
       }
    }
-   return unique_parameters;
 }
 
-vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions){
-   set<unsigned int> unique_parameters = GetUniqueParams(actions);
-   
+// need to make naming more unique
+string GenerateName(PDDLActionInstance action1, PDDLActionInstance action2){
+   string name= action1.action->name + "-" + action2.action->name + "-";
+   return name;
+}
+
+vector<string> GenerateParams(PDDLActionInstance action1, PDDLActionInstance action2, map<unsigned int, pair<int, int>> param_map, int index){
+   vector<string> params;
+
+   for(string param : action1.action->parameters){
+      params.push_back(param + to_string(index));
+   }
+   for (string param : action2.action->parameters){
+      
+   }
+}
+
+vector<unsigned int> GenerateObjects(PDDLActionInstance action1, PDDLActionInstance action2){
+
+}
+
+vector<PDDLLiteral> GeneratePrecons(PDDLActionInstance action1, PDDLActionInstance action2){
    // vector<PDDLLiteral> precons;
    // int size = actions.size();
    // int n = 0;
@@ -59,7 +85,7 @@ vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions){
    // }
 }
 
-vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
+vector<PDDLLiteral> GenerateEffs(PDDLActionInstance action1, PDDLActionInstance action2){
    // vector<PDDLLiteral> effects;
    // int size = actions.size();
    // int n = 0;
