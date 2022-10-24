@@ -1,11 +1,11 @@
-#include "MacroGeneration.h"
+#include "MacroGeneration.hh"
 #include <algorithm>
 #include <unordered_set>
 #include <set>
 
 using namespace std;
 
-PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> actions) {
+PDDLAction MacroGeneration::GenerateMacro(vector<PDDLActionInstance> actions) {
     // int size = actions->size();
     // int last = size - 1;
     // PDDLActionInstance* macro;
@@ -27,37 +27,20 @@ PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> acti
     for (PDDLActionInstance actionInstance : actions) {
         actionTypes.push_back(*actionInstance.action);
     }
-    //PDDLAction* macro = new PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
-    //return *macro;
+    PDDLAction macro = PDDLAction(GenerateName(actionTypes), GenerateParams(actions), GeneratePrecons(actions), GenerateEffs(actions));
+    return macro;
 }
 
-string MacroGenerator::GenerateName(vector<PDDLAction> actions){
-    string name= "";
-    for(PDDLAction i : actions){
+string MacroGeneration::GenerateName(vector<PDDLAction> actions) {
+    string name = "";
+    for(PDDLAction i : actions) {
         name = name + i.name + "-";
     }
     macro_counter++;
     return name + to_string(macro_counter);
 }
 
-vector<string> GenerateParams(vector<PDDLActionInstance> actions){
-    set<unsigned int> unique_parameters = GetUniqueParams(actions);
-    vector<string> params;
-    for (unsigned int obj : unique_parameters) {
-        params.push_back("var" + to_string(obj));
-    }
-    return params;
-}
-
-set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
-    // vector<string> params;
-
-    // for(string param : action1.action->parameters){
-    //     params.push_back(param + to_string(index));
-    // }
-    // for (string param : action2.action->parameters){
-        
-    // }
+set<unsigned int> MacroGeneration::GetUniqueParams(vector<PDDLActionInstance> actions) {
     set<unsigned int> unique_parameters;
     for (PDDLActionInstance inst : actions) {
         for (unsigned int obj : inst.objects) {
@@ -67,33 +50,73 @@ set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
     return unique_parameters;
 }
 
-vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions) {
+vector<string> MacroGeneration::GenerateParams(vector<PDDLActionInstance> actions) {
+    set<unsigned int> unique_parameters = GetUniqueParams(actions);
+    vector<string> params;
+    for (unsigned int obj : unique_parameters) {
+        params.push_back("x" + to_string(obj));
+    }
+    return params;
+}
+
+// cursed index of set element i
+int MacroGeneration::GetIndex(set<unsigned int> p, unsigned int i) {
+    set<unsigned int>::iterator it = p.find(i);
+    int j = 0;
+    for (set<unsigned int>::iterator it2 = p.begin(); it2 != p.end() && it2 != it; ++it2) {
+        ++j;
+    }
+    return j;
+}
+
+// religiously convert literal to extremist macro literal
+// converts arguments of literal to use arguments of macro
+PDDLLiteral MacroGeneration::ConvertLiteral(PDDLLiteral lit, PDDLActionInstance action, set<unsigned int> params) {
+    vector<unsigned int> newargs;
+    for (unsigned int arg : lit.args) {
+        // push the index of argument object to newargs
+        newargs.push_back(GetIndex(params, action.objects[arg]));
+    }
+    return PDDLLiteral(lit.predicateIndex, newargs, lit.value);
+}
+
+vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> actions) {
+    set<unsigned int> unique_parameters = GetUniqueParams(actions);
     vector<PDDLLiteral> precons;
+    // for each action, add its preconditions and remove effects of previous one
     for (int i = 0; i < actions.size(); ++i) {
+        // because formula is pre(o1) U (pre(o2) \ eff+(o1)), a separate precons vector is needed
+        vector<PDDLLiteral> additional_precons;
+        for (PDDLLiteral precon : actions[i].action->preconditions) {
+            precons.push_back(ConvertLiteral(precon, actions[i], unique_parameters));
+        }
+        // remove positive effects of previous action from precons
         if (i != 0) {
             vector<PDDLLiteral> previous_adds = actions[i-1].action->GetAdds();
-            
-        } else {
+            set<int> delete_list;
+            // convert add literals to new ones
+            // and add them to remove list if they exist in additional_precons
+            for (PDDLLiteral add : previous_adds) {
+                PDDLLiteral converted_add = ConvertLiteral(add, actions[i-1], unique_parameters);
+                // check if add exists in additional_precons, add it to delete_list
+                for (PDDLLiteral precon : additional_precons) {
 
+                }
+            }
+            for (int i : delete_list) {
+                //additional_precons.erase(additional_precons.begin()+i);
+            }
+        }
+        // add additional precons literals to precons vector
+        for (PDDLLiteral precon : additional_precons) {
+            precons.push_back(precon);
         }
     }
     return precons;
-    // vector<PDDLLiteral> precons;
-    // int size = actions.size();
-    // int n = 0;
-    // for(int i = 0; i < size; i++){
-    //     int size2 = actions[i].preconditions.size();
-    //     for(int j = 0; j < size2; j++){
-    //         PDDLLiteral lit = PDDLLiteral(actions[i].preconditions[j].predicateIndex, 
-    //         GenerateLitParams(n, actions[i].preconditions[j].args.size()), actions[i].preconditions[j].value);
-    //         precons.push_back(lit);
-    //         n += actions[i].preconditions[j].args.size();
-    //     }
-    // }
 }
 
-vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
-    // vector<PDDLLiteral> effects;
+vector<PDDLLiteral> MacroGeneration::GenerateEffs(vector<PDDLActionInstance> actions) {
+    vector<PDDLLiteral> effects;
     // int size = actions.size();
     // int n = 0;
     // for(int i = 0; i < size; i++){
@@ -104,6 +127,7 @@ vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
     //         effects.push_back(lit);
     //     }
     // }
+    return effects;
 }
 
 // map<unsigned int, pair<int, int>> GenerateParamMap(PDDLActionInstance action1, PDDLActionInstance action2){
@@ -134,7 +158,7 @@ vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
 //     return res;
 // }
 
-// PDDLActionInstance MacroGenerator::GenerateGroundedMacro(vector<PDDLActionInstance> actions){
+// PDDLActionInstance MacroGeneration::GenerateGroundedMacro(vector<PDDLActionInstance> actions){
 //     PDDLAction macro_action;
 //     macro_action = PDDLAction(
 //         GenerateGroundedName(actions),
