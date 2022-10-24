@@ -21,6 +21,8 @@ target_link_libraries(P7
         Walker
         ActionGenerator
         DepthFunction
-        WidthFunction)
+        WidthFunction
+        MacroGeneration
+        )
 
 add_executable(P7Lab "P7Lab.cpp")
