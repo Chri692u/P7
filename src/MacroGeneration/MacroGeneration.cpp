@@ -6,6 +6,23 @@
 using namespace std;
 
 PDDLActionInstance MacroGenerator::GenerateMacro(vector<PDDLActionInstance> actions) {
+   // int size = actions->size();
+   // int last = size - 1;
+   // PDDLActionInstance* macro;
+   // map<unsigned int, pair<int, int>> param_map;
+
+   // for(int i = 0; i < size; i++){
+   //    param_map = GenerateParamMap((*actions)[i], (*actions)[last]);
+   //    macro = new PDDLActionInstance(new PDDLAction(
+   //    GenerateName((*actions)[i], (*actions)[last]), 
+   //    GenerateParams((*actions)[i], (*actions)[last], param_map, i),
+   //    GeneratePrecons((*actions)[i], (*actions)[last]),
+   //    GenerateEffs((*actions)[i], (*actions)[last])
+   //    ), GenerateObjects((*actions)[i], (*actions)[last]));
+   //    (*actions).insert((*actions).end() - 1, (*macro));
+   // }
+   // return *macro;
+
    vector<PDDLAction> actionTypes;
    for (PDDLActionInstance actionInstance : actions) {
       actionTypes.push_back(*actionInstance.action);
@@ -33,6 +50,14 @@ vector<string> GenerateParams(vector<PDDLActionInstance> actions){
 }
 
 set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
+   // vector<string> params;
+
+   // for(string param : action1.action->parameters){
+   //    params.push_back(param + to_string(index));
+   // }
+   // for (string param : action2.action->parameters){
+      
+   // }
    set<unsigned int> unique_parameters;
    for (PDDLActionInstance inst : actions) {
       for (unsigned int obj : inst.objects) {
@@ -80,6 +105,26 @@ vector<PDDLLiteral> GenerateEffs(vector<PDDLActionInstance> actions){
    //    }
    // }
 }
+
+// map<unsigned int, pair<int, int>> GenerateParamMap(PDDLActionInstance action1, PDDLActionInstance action2){
+//    map<unsigned int, pair<int, int>> res;
+//    int size = action1.action->parameters.size();
+
+//    for(int i = 0; i < size; i++){
+//       res.insert(pair<unsigned int, pair<int, int>>(action1.objects[i], pair<int, int>(i, -1)));
+//    }
+
+//    size = action2.action->parameters.size();
+
+//    for(int i = 0; i < size; i++){
+//       if(res.find(action2.objects[i]) != res.end()){
+//          res[action2.objects[i]].second = i;
+//       }
+//       else {
+//          res.insert(pair<unsigned int, pair<int, int>>(action2.objects[i], pair<int, int>(-1, i)));
+//       }
+//    }
+// }
 
 // vector<unsigned int> GenerateLitParams(int offset, int size){
 //    vector<unsigned int> res;
