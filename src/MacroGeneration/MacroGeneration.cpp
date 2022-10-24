@@ -20,14 +20,14 @@ string MacroGenerator::GenerateName(vector<PDDLAction> actions){
       name = name + i.name + "-";
    }
    macro_counter++;
-   return name + macro_counter;
+   return name + to_string(macro_counter);
 }
 
 vector<string> GenerateParams(vector<PDDLActionInstance> actions){
    set<unsigned int> unique_parameters = GetUniqueParams(actions);
    vector<string> params;
    for (unsigned int obj : unique_parameters) {
-      params.push_back("var" + to_string(obj))
+      params.push_back("var" + to_string(obj));
    }
    return params;
 }
@@ -43,8 +43,16 @@ set<unsigned int> GetUniqueParams(vector<PDDLActionInstance> actions) {
 }
 
 vector<PDDLLiteral> GeneratePrecons(vector<PDDLActionInstance> actions){
-   set<unsigned int> unique_parameters = GetUniqueParams(actions);
-   
+   vector<PDDLLiteral> precons;
+   for (int i = 0; i < actions.size(); ++i) {
+      vector<PDDLLiteral> previousEffects;
+      if (i != 0) {
+         
+      } else {
+
+      }
+   }
+   return precons;
    // vector<PDDLLiteral> precons;
    // int size = actions.size();
    // int n = 0;
