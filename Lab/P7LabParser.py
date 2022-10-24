@@ -45,17 +45,6 @@ def get_times(content, props):
         props[stages[index]+"_ms"] = times[index]
         props[stages[index]+"_procent"] = procents[index]
 
-    """
-    props["parsing_pddl_ms"] = times[0]
-    props["converison_of_pddl_format"] = times[2]
-    props["reformulation_of_pddl"] = times[4]
-    props["generating_pddl"] = times[6]
-    props["running_fastdownward"] = times[8]
-    props["parse_sas_plan"] = times[10]
-    props["rebuild_sas_plan"] = times[12]
-    props["output_sas_plan"] = times[14]
-    """
-
 parser = Parser()
 parser.add_function(get_times, file="run.log")
 parser.parse()

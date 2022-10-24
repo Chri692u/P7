@@ -1,13 +1,16 @@
-#include "P7.hh"
+#include <iostream>
+
+#include "Config/Config.hh"
+#include "CommonInterface/CommonInterface.hh"
+#include "RunReport/RunReport.hh"
 
 using namespace std;
 
-int main(int argc, char** argv)
-{
-	Config config;
+int main(int argc, char** argv){
+	 Config config;
 	// Do first as it quits on help
 	if (config.ParseArgs(&config, argc, argv))
-		return 0;
+		return 0;  
 
 	RunReport report = RunReport();
 

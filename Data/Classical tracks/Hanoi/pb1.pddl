@@ -1,6 +1,6 @@
 (define (problem pb1)
 	(:domain hanoi)
-	(:requirements :strips)
+
 	(:objects peg1 peg2 peg3 d1 d2 d3)
 	(:init 
 		(smaller peg1 d1)

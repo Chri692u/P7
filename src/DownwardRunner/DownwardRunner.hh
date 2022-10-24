@@ -4,11 +4,15 @@
 #include <string>
 #include <fstream>
 
-#include "../Config/config.hh"
+#include "../Config/Config.hh"
 
-struct DownwardRunner {
+class DownwardRunner {
+public:
     enum DownwardRunnerResult { None, FoundPlan, DidNotFindPlan };
-    static enum DownwardRunnerResult RunDownward(Config config, std::string reformulatedDomain, std::string reformulatedProblem);
+    void RunDownward(Config config, std::string reformulatedDomain, std::string reformulatedProblem);
+    DownwardRunnerResult ParseDownwardLog();
+
+    std::string RunnerLogName = "downwardLog";
 };
 
 #endif

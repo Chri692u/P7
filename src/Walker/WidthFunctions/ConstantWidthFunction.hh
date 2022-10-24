@@ -6,7 +6,7 @@
 
 class ConstantWidthFunction : public BaseWidthFunction {
 public:
-    ConstantWidthFunction(int width, PDDLInstance instance, double modifier = 1) : ConstantWidth(width), BaseWidthFunction(instance, modifier) {}
+    ConstantWidthFunction(int width, double modifier = 1) : ConstantWidth(width), BaseWidthFunction(modifier) {}
     int GetWidth() override;
 private:
     int ConstantWidth = 0;
