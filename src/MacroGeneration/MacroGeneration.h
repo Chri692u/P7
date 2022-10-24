@@ -9,7 +9,7 @@ private:
     int macro_counter = 0;
     std::string GenerateName(vector<PDDLAction> actions);
 public:
-    PDDLActionInstance GenerateMacro(std::vector<PDDLActionInstance>* actions);
+    PDDLActionInstance GenerateMacro(std::vector<PDDLActionInstance> actions);
 };
 
 #endif

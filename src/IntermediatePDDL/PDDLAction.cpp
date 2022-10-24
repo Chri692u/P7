@@ -1,6 +1,6 @@
 #include "PDDLAction.hh"
 
-std::vector<PDDLLiteral> PDDLAction::GetAdds() {
+std::vector<PDDLLiteral> PDDLAction::GetAdds() const {
     std::vector<PDDLLiteral> return_vec;
     for (PDDLLiteral lit : (*this).effects) {
         if (lit.value) 
@@ -9,7 +9,7 @@ std::vector<PDDLLiteral> PDDLAction::GetAdds() {
     return return_vec;
 }
 
-std::vector<PDDLLiteral> PDDLAction::GetDeletes() {
+std::vector<PDDLLiteral> PDDLAction::GetDeletes() const {
     std::vector<PDDLLiteral> return_vec;
     for (PDDLLiteral lit : (*this).effects) {
         if (!lit.value) 

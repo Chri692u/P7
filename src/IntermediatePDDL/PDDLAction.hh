@@ -26,8 +26,8 @@ struct PDDLAction {
     PDDLAction(const PDDLAction &a) : 
         name(a.name), parameters(a.parameters), preconditions(a.preconditions), effects(a.effects), applicableUnaryLiterals(GenerateApplicableLiterals(true)), applicableMultiLiterals(GenerateApplicableLiterals(false)) {};
 
-    std::vector<PDDLLiteral> GetAdds();
-    std::vector<PDDLLiteral> GetDeletes();
+    std::vector<PDDLLiteral> GetAdds() const;
+    std::vector<PDDLLiteral> GetDeletes() const;
 private:
     std::unordered_map<unsigned int, const std::unordered_set<const PDDLLiteral*>> GenerateApplicableLiterals(bool unary);
 };
