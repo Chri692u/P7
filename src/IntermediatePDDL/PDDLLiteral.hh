@@ -10,8 +10,17 @@ struct PDDLLiteral {
     const std::vector<unsigned int> args;
     // What value the predicate should be with the given arguments
     const bool value;
-    PDDLLiteral(unsigned int predicateIndex, std::vector<unsigned int> args, bool value) :
+    PDDLLiteral(const unsigned int predicateIndex, const std::vector<unsigned int> args, const bool value) :
         predicateIndex(predicateIndex), args(args), value(value) {};
+    friend bool operator==(const PDDLLiteral &lhs, const PDDLLiteral &rhs) {
+        if (lhs.predicateIndex != rhs.predicateIndex)
+            return false;
+        if (lhs.args != rhs.args)
+            return false;
+        // if (lhs.value != rhs.value)
+        //     return false;
+        return true;
+    }
 };
 
 #endif
