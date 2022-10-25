@@ -17,8 +17,8 @@ struct PDDLLiteral {
             return false;
         if (lhs.args != rhs.args)
             return false;
-        if (lhs.value != rhs.value)
-            return false;
+        // if (lhs.value != rhs.value)
+        //     return false;
         return true;
     }
 };
