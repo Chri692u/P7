@@ -83,8 +83,9 @@ PDDLLiteral MacroGeneration::ConvertLiteral(PDDLLiteral lit, PDDLActionInstance 
 vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> actions) {
     set<unsigned int> unique_parameters = GetUniqueParams(actions);
     vector<PDDLLiteral> precons;
+    int size = actions.size();
     // for each action, add its preconditions and remove effects of previous one
-    for (int i = 0; i < actions.size(); ++i) {
+    for (int i = 0; i < size; ++i) {
         // because formula is pre(o1) U (pre(o2) \ eff+(o1)), a separate precons vector is needed
         vector<PDDLLiteral> additional_precons;
         for (PDDLLiteral precon : actions[i].action->preconditions) {
