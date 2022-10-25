@@ -80,7 +80,7 @@ vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> 
         // because formula is pre(o1) U (pre(o2) \ eff+(o1)), a separate precons vector is needed
         vector<PDDLLiteral> additional_precons;
         for (PDDLLiteral precon : actions[i].action->preconditions) {
-            precons.push_back(ConvertLiteral(precon, actions[i], unique_parameters));
+            additional_precons.push_back(ConvertLiteral(precon, actions[i], unique_parameters));
         }
         // remove positive effects of previous action from precons
         if (i != 0) {
