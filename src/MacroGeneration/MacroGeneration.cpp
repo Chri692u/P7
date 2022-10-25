@@ -79,6 +79,14 @@ PDDLLiteral MacroGeneration::ConvertLiteral(PDDLLiteral lit, PDDLActionInstance 
     }
     return PDDLLiteral(lit.predicateIndex, newargs, lit.value);
 }
+// good code
+void MacroGeneration::RemoveFromPDDLVector(vector<PDDLLiteral> literals, set<int> removes) {
+    int i = 0;
+    for (int r : removes) {
+        literals.erase(literals.begin()+r-i);
+        i++;
+    }
+}
 
 vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> actions) {
     set<unsigned int> unique_parameters = GetUniqueParams(actions);
@@ -99,13 +107,21 @@ vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> 
             for (PDDLLiteral add : previous_adds) {
                 PDDLLiteral converted_add = ConvertLiteral(add, actions[i-1], unique_parameters);
                 // check if add exists in additional_precons, add it to delete_list
-                for (PDDLLiteral precon : additional_precons) {
-
+                for (int i = 0; i < additional_precons.size(); ++i) {
+                    PDDLLiteral* precon = &additional_precons.at(i);
+                    bool sameparams = precon->args.size() == converted_add.args.size();
+                    for (int j = 0; j < precon->args.size() && sameparams; ++j) {
+                        if (precon->args.at(j) != converted_add.args.at(j)) {
+                            sameparams = false;
+                        }
+                    }
+                    // same stuff if same value and parameters and predicate
+                    if (sameparams && precon->value == converted_add.value && precon->predicateIndex == converted_add.predicateIndex) {
+                        delete_list.insert(i);
+                    }
                 }
             }
-            for (int i : delete_list) {
-                //additional_precons.erase(additional_precons.begin()+i);
-            }
+            RemoveFromPDDLVector(additional_precons, delete_list);
         }
         // add additional precons literals to precons vector
         for (PDDLLiteral precon : additional_precons) {
