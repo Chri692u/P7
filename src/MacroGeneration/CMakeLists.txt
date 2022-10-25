@@ -7,3 +7,4 @@ target_sources(MacroGeneration
 target_include_directories(MacroGeneration
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(MacroGeneration IntermediatePDDL)

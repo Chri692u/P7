@@ -1,7 +1,7 @@
 #ifndef _MACROGEN
 #define _MACROGEN
 
-#include "../IntermediatePDDL/PDDLdomain.hh"
+#include "../IntermediatePDDL/PDDLDomain.hh"
 #include "../IntermediatePDDL/PDDLActionInstance.hh"
 #include <set>
 
@@ -17,7 +17,7 @@ private:
     std::set<unsigned int> GetUniqueParams(std::vector<PDDLActionInstance> actions);
     int GetIndex(std::set<unsigned int> p, unsigned int i);
     PDDLLiteral ConvertLiteral(PDDLLiteral lit, PDDLActionInstance action, std::set<unsigned int> params);
-    void RemoveFromPDDLVector(std::vector<PDDLLiteral> literals, std::set<int> removes);
+    std::vector<PDDLLiteral> RemoveFromPDDLVector(std::vector<PDDLLiteral> literals, std::set<int> removes);
 public:
     PDDLAction GenerateMacro(std::vector<PDDLActionInstance> actions);
 };

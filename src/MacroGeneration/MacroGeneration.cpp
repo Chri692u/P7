@@ -80,12 +80,13 @@ PDDLLiteral MacroGeneration::ConvertLiteral(PDDLLiteral lit, PDDLActionInstance 
     return PDDLLiteral(lit.predicateIndex, newargs, lit.value);
 }
 // good code
-void MacroGeneration::RemoveFromPDDLVector(vector<PDDLLiteral> literals, set<int> removes) {
-    int i = 0;
-    for (int r : removes) {
-        literals.erase(literals.begin()+r-i);
-        i++;
-    }
+vector<PDDLLiteral> MacroGeneration::RemoveFromPDDLVector(vector<PDDLLiteral> literals, set<int> removes) {
+    vector<PDDLLiteral> newLiterals;
+    newLiterals.reserve(removes.size());
+    for (int i = 0; i < literals.size(); i++)
+        if (!removes.contains(i))
+            newLiterals.push_back(PDDLLiteral(literals.at(i)));
+    return newLiterals;
 }
 
 vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> actions) {
@@ -109,19 +110,13 @@ vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> 
                 // check if add exists in additional_precons, add it to delete_list
                 for (int i = 0; i < additional_precons.size(); ++i) {
                     PDDLLiteral* precon = &additional_precons.at(i);
-                    bool sameparams = precon->args.size() == converted_add.args.size();
-                    for (int j = 0; j < precon->args.size() && sameparams; ++j) {
-                        if (precon->args.at(j) != converted_add.args.at(j)) {
-                            sameparams = false;
-                        }
-                    }
                     // same stuff if same value and parameters and predicate
-                    if (sameparams && precon->value == converted_add.value && precon->predicateIndex == converted_add.predicateIndex) {
+                    if (*precon == converted_add) {
                         delete_list.insert(i);
                     }
                 }
             }
-            RemoveFromPDDLVector(additional_precons, delete_list);
+            additional_precons = RemoveFromPDDLVector(additional_precons, delete_list);
         }
         // add additional precons literals to precons vector
         for (PDDLLiteral precon : additional_precons) {
