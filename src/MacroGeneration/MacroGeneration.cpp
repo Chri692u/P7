@@ -143,7 +143,6 @@ vector<PDDLLiteral> MacroGeneration::GenerateEffs(vector<PDDLActionInstance> act
         // this is adds(o1) \ deletes(o2) part allegedly
         for (int j = 0; j < o1_adds.size(); ++j) {
             bool is_in_deletes = false;
-            // crash 💣
             PDDLLiteral converted_o1_add = (i == 0) ? ConvertLiteral(o1_adds.at(j), actions.at(i), unique_parameters) : o1_adds.at(j);
             for (PDDLLiteral o2_delete : o2_deletes) {
                 PDDLLiteral converted_o2_delete = ConvertLiteral(o2_delete, actions.at(i+1), unique_parameters);
