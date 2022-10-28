@@ -4,22 +4,22 @@
 
 using namespace std;
 
-const string TAG = "MacroGeneration "
+const string TAG = "MacroGeneration ";
 
 PDDLActionInstance GenerateActionInstance(vector<unsigned int> objects, string name, vector<string> params, vector<PDDLLiteral> precons, vector<PDDLLiteral> effects){
-   return PDDLActionInstance(PDDLAction(name, params, precons, effects), objects);
+   return PDDLActionInstance(new PDDLAction(name, params, precons, effects), objects);
 }
 
 //fun test
 TEST_CASE(TAG + "GenerateMacroWith2Actions"){
-   MacroGenerator generator = MacroGenerator();
+   MacroGeneration generator = MacroGeneration();
    vector<PDDLActionInstance> actions;
    vector<unsigned int> obj_1 = {1, 2};
    vector<unsigned int> obj_2 = {3, 2, 7};
    vector<unsigned int> macro_obj = {1, 2, 3, 7};
-   string name_1 = "move"
-   string name_2 = "pick-up"
-   string macro_name = "move-pick-up-1"
+   string name_1 = "move";
+   string name_2 = "pick-up";
+   string macro_name = "move-pick-up-1";
    vector<string> params_1 = {"?x", "?y"};
    vector<string> params_2 = {"?x", "?y", "?z"};
    vector<string> macro_params = {"x1", "x2", "x3", "x7"};
