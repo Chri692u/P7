@@ -24,52 +24,52 @@ TEST_CASE(TAG + "GenerateMacroWith2Actions"){
    vector<string> params_2 = {"?x", "?y", "?z"};
    vector<string> macro_params = {"x1", "x2", "x3", "x7"};
    vector<PDDLLiteral> precons_1 = {
-      PDDLLiteral(1, vector<unsigned int> = {0}, true),
-      PDDLLiteral(1, vector<unsigned int> = {1}, true),
-      PDDLLiteral(0, vector<unsigned int> = {0, 1}, false),
-      PDDLLiteral(4, vector<unsigned int> = {0}, true)
+      PDDLLiteral(1, vector<unsigned int> (0), true),
+      PDDLLiteral(1, vector<unsigned int> (1), true),
+      PDDLLiteral(0, vector<unsigned int> (0, 1), false),
+      PDDLLiteral(4, vector<unsigned int> (0), true)
    };
    vector<PDDLLiteral> precons_2 = {
-      PDDLLiteral(2, vector<unsigned int> = {0}, true),
-      PDDLLiteral(1, vector<unsigned int> = {1}, true),
-      PDDLLiteral(3, vector<unsigned int> = {2}, true),
-      PDDLLiteral(5, vector<unsigned int> = {0, 1}, true),
-      PDDLLiteral(4, vector<unsigned int> = {1}, true),
-      PDDLLiteral(6, vector<unsigned int> = {2}, true)
+      PDDLLiteral(2, vector<unsigned int> (0), true),
+      PDDLLiteral(1, vector<unsigned int> (1), true),
+      PDDLLiteral(3, vector<unsigned int> (2), true),
+      PDDLLiteral(5, vector<unsigned int> (0, 1), true),
+      PDDLLiteral(4, vector<unsigned int> (1), true),
+      PDDLLiteral(6, vector<unsigned int> (2), true)
    };
    vector<PDDLLiteral> macro_precons = {
       //Precons from action 1
-      PDDLLiteral(1, vector<unsigned int> = {0}, true),
-      PDDLLiteral(1, vector<unsigned int> = {1}, true),
-      PDDLLiteral(0, vector<unsigned int> = {0, 1}, false),
-      PDDLLiteral(4, vector<unsigned int> = {0}, true),
+      PDDLLiteral(1, vector<unsigned int> (0), true),
+      PDDLLiteral(1, vector<unsigned int> (1), true),
+      PDDLLiteral(0, vector<unsigned int> (0, 1), false),
+      PDDLLiteral(4, vector<unsigned int> (0), true),
       //Precons from action 2
-      PDDLLiteral(2, vector<unsigned int> = {2}, true),
-      PDDLLiteral(1, vector<unsigned int> = {1}, true),
-      PDDLLiteral(3, vector<unsigned int> = {3}, true),
-      PDDLLiteral(5, vector<unsigned int> = {2, 1}, true),
-      PDDLLiteral(6, vector<unsigned int> = {3}, true)
-   }
+      PDDLLiteral(2, vector<unsigned int> (2), true),
+      PDDLLiteral(1, vector<unsigned int> (1), true),
+      PDDLLiteral(3, vector<unsigned int> (3), true),
+      PDDLLiteral(5, vector<unsigned int> (2, 1), true),
+      PDDLLiteral(6, vector<unsigned int> (3), true)
+   };
    vector<PDDLLiteral> effs_1 = {
-      PDDLLiteral(4, vector<unsigned int> = {1}, true),
-      PDDLLiteral(4, vector<unsigned int> = {0}, false)
+      PDDLLiteral(4, vector<unsigned int> (1), true),
+      PDDLLiteral(4, vector<unsigned int> (0), false)
    };
    vector<PDDLLiteral> effs_2 = {
-      PDDLLiteral(7, vector<unsigned int> = {3, 2}, true),
-      PDDLLiteral(5, vector<unsigned int> = {0, 1}, false),
-      PDDLLiteral(6, vector<unsigned int> = {2}, false),
+      PDDLLiteral(7, vector<unsigned int> (3, 2), true),
+      PDDLLiteral(5, vector<unsigned int> (0, 1), false),
+      PDDLLiteral(6, vector<unsigned int> (2), false),
    };
    vector<PDDLLiteral> macro_effs = {
-      PDDLLiteral(4, vector<unsigned int> = {1}, true),
-      PDDLLiteral(7, vector<unsigned int> = {3, 2}, true),
-      PDDLLiteral(4, vector<unsigned int> = {0}, false),
-      PDDLLiteral(5, vector<unsigned int> = {2, 1}, false),
-      PDDLLiteral(6, vector<unsigned int> = {3}, false)
-   }
+      PDDLLiteral(4, vector<unsigned int> (1), true),
+      PDDLLiteral(7, vector<unsigned int> (3, 2), true),
+      PDDLLiteral(4, vector<unsigned int> (0), false),
+      PDDLLiteral(5, vector<unsigned int> (2, 1), false),
+      PDDLLiteral(6, vector<unsigned int> (3), false)
+   };
    actions.push_back(GenerateActionInstance(obj_1, name_1, params_1, precons_1, effs_1));
    actions.push_back(GenerateActionInstance(obj_2, name_2, params_2, precons_2, effs_2));
    PDDLAction macro = PDDLAction(macro_name, macro_params, macro_precons, macro_effs);
    PDDLAction exp_macro = generator.GenerateMacro(actions);
 
-   REQUIRE(macro == exp_macro && macro.parameters == exp_macro.parameters);
+   REQUIRE((macro == exp_macro && macro.parameters == exp_macro.parameters));
 }
