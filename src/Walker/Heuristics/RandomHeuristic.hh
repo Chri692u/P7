@@ -1,26 +1,23 @@
-#ifndef RandomHeuristics_HH
-#define RandomHeuristics_HH
+#ifndef RandomHeuristic_HH
+#define RandomHeuristic_HH
 
-#include <vector>
+#include "BaseHeuristic.hh"
 
-#include "BaseHeuristics.hh"
-#include "Contexts/PDDLContext.hh"
-
-template <class T>
-class RandomHeuristic : public BaseHeuristics<T, PDDLContext> {
+class RandomHeuristic : public BaseHeuristic {
 public:
-	RandomHeuristic(PDDLContext context) : BaseHeuristics<T, PDDLContext>(context){
+	RandomHeuristic() : BaseHeuristic(nullptr, nullptr){
 		// 0 for debugging purposes
 		srand(0);
 		//srand(time(NULL));
-	}
-	T NextChoice(std::vector<T> choices) override;
-};
+	};
 
-template <class T>
-T RandomHeuristic<T>::NextChoice(std::vector<T> choices) {
-	int rndNum = rand() % choices.size();
-	return choices[rndNum];
-}
+	PDDLActionInstance* NextChoice(PDDLState * state, std::vector<PDDLActionInstance> *choices) const override {
+		return &choices->at(rand() % choices->size());
+	}
+
+	int Eval(const PDDLState *state) const override {
+		return rand();
+	};
+};
 
 #endif

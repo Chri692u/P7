@@ -12,7 +12,9 @@ struct PDDLLiteral {
     const bool value;
     PDDLLiteral(const unsigned int predicateIndex, const std::vector<unsigned int> args, const bool value) :
         predicateIndex(predicateIndex), args(args), value(value) {};
-    friend bool operator==(const PDDLLiteral &lhs, const PDDLLiteral &rhs) {
+
+    /// @return Returns true if the predicateIndex and arguments are the same, ignores value
+    friend bool operator==(const PDDLLiteral& lhs, const PDDLLiteral& rhs) {
         if (lhs.predicateIndex != rhs.predicateIndex)
             return false;
         if (lhs.args != rhs.args)

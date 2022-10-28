@@ -1,12 +1,14 @@
 #include "PDDLActionInstance.hh"
 
-std::string PDDLActionInstance::ToString(const PDDLProblem * problem, const PDDLDomain * domain)
+#include "PDDLInstance.hh"
+
+std::string PDDLActionInstance::ToString(const PDDLInstance* instance)
 {
     //Print action
     std::string temp = action->name + "(";
     for (int i = 0; i < objects.size(); i++)
     {
-        temp += problem->objects[objects[i]];
+        temp += instance->problem->objects[objects[i]];
         if (i + 1 < objects.size()) 
         {
             temp += " ";
@@ -14,13 +16,13 @@ std::string PDDLActionInstance::ToString(const PDDLProblem * problem, const PDDL
     }
     temp += ")\n";
 
-    temp += "precondition(" + LiteralsToString(action->preconditions, domain, problem);
-    temp += "effect(" + LiteralsToString(action->effects, domain, problem);
+    temp += "precondition(" + LiteralsToString(action->preconditions, instance);
+    temp += "effect(" + LiteralsToString(action->effects, instance);
 
     return temp;
 }
 
-std::string PDDLActionInstance::LiteralsToString(std::vector<PDDLLiteral> literals, const PDDLDomain* domain, const PDDLProblem* problem)
+std::string PDDLActionInstance::LiteralsToString(std::vector<PDDLLiteral> literals, const PDDLInstance* instance)
 {
     std::string temp;
     for (int i = 0; i < literals.size(); i++)
@@ -31,13 +33,12 @@ std::string PDDLActionInstance::LiteralsToString(std::vector<PDDLLiteral> litera
         if (!literal.value) {
             temp += "not ";
         }
-        auto predicate = domain->predicates[literal.predicateIndex];
+        auto predicate = instance->domain->predicates[literal.predicateIndex];
         temp += predicate.name + " ";
-        //temp += objectnames[literal.predicateIndex] + " ";
 
         for (int i = 0; i < literal.args.size(); i++)
         {
-            temp += problem->objects[objects[literal.args[i]]];
+            temp += instance->problem->objects[objects[literal.args[i]]];
             if (i + 1 < literal.args.size()) 
             {
                 temp += " ";
@@ -52,4 +53,11 @@ std::string PDDLActionInstance::LiteralsToString(std::vector<PDDLLiteral> litera
     }
     temp += ")\n";
     return temp;
+}
+
+size_t PDDLActionInstance::GetHash() {
+    if (Hash != 0)
+        return Hash;
+    Hash = std::hash<PDDLActionInstance>{}(*this);
+    return Hash;
 }

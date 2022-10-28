@@ -13,7 +13,7 @@ const string badPlan = "./TestFiles/bad_plan";
 
 TEST_CASE(TAG + "MissingVAL") {
     Config config;
-    config.ValidatorPath.Content = "Not Val Path";
+    config.ParseConfigFile("PATH:validatorpath=notval");
 
     PlanValidator validator;
     PlanValidator::ValidatorResult res = validator.ValidatePlan(config, domainFile, problemFile, badPlan);
@@ -21,19 +21,28 @@ TEST_CASE(TAG + "MissingVAL") {
 }
 
 TEST_CASE(TAG + "MissingDomainFile") {
+    Config config;
+    config.ParseConfigFile("PATH:validatorpath=notval");
+
     PlanValidator validator;
-    PlanValidator::ValidatorResult res = validator.ValidatePlan(Config(), "Not a domain", problemFile, badPlan);
+    PlanValidator::ValidatorResult res = validator.ValidatePlan(config, "Not a domain", problemFile, badPlan);
     REQUIRE(PlanValidator::ValidatorResult::MissingDomainFile == res);
 }
 
 TEST_CASE(TAG + "MissingProblemFile") {
+    Config config;
+    config.ParseConfigFile("PATH:validatorpath=notval");
+
     PlanValidator validator;
-    PlanValidator::ValidatorResult res = validator.ValidatePlan(Config(), domainFile, "Not a problem", badPlan);
+    PlanValidator::ValidatorResult res = validator.ValidatePlan(config, domainFile, "Not a problem", badPlan);
     REQUIRE(PlanValidator::ValidatorResult::MissingProblemFile == res);
 }
 
 TEST_CASE(TAG + "MissingPlanFile") {
+    Config config;
+    config.ParseConfigFile("PATH:validatorpath=notval");
+
     PlanValidator validator;
-    PlanValidator::ValidatorResult res = validator.ValidatePlan(Config(), domainFile, problemFile, "Not a plan");
+    PlanValidator::ValidatorResult res = validator.ValidatePlan(config, domainFile, problemFile, "Not a plan");
     REQUIRE(PlanValidator::ValidatorResult::MissingPlanFile == res);
 }

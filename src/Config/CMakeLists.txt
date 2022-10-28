@@ -7,3 +7,4 @@ target_sources(Config
 target_include_directories(Config
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(Config ConsoleHelper StringHelper)

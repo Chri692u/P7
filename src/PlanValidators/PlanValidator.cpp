@@ -4,17 +4,18 @@ using namespace std;
 
 const string ValidatorLogName = "validatorLog";
 
-enum PlanValidator::ValidatorResult PlanValidator::ValidatePlan(Config config, string domainFile, string problemFile, string planFile) {
-	if (!FileHelper::DoesFileExist(filesystem::path(domainFile)))
+enum PlanValidator::ValidatorResult PlanValidator::ValidatePlan(Config config, std::filesystem::path domainFile, std::filesystem::path problemFile, std::filesystem::path planFile) {
+	if (!FileHelper::DoesFileExist(domainFile))
 		return PlanValidator::ValidatorResult::MissingDomainFile;
-	if (!FileHelper::DoesFileExist(filesystem::path(problemFile)))
+	if (!FileHelper::DoesFileExist(problemFile))
 		return PlanValidator::ValidatorResult::MissingProblemFile;
-	if (!FileHelper::DoesFileExist(filesystem::path(planFile)))
+	if (!FileHelper::DoesFileExist(planFile))
 		return PlanValidator::ValidatorResult::MissingPlanFile;
 
-	if (!FileHelper::DoesFileExist(filesystem::path(config.ValidatorPath.Content)))
+	if (!FileHelper::DoesFileExist(config.GetPath("validatorpath")))
 		return PlanValidator::ValidatorResult::MissingVAL;
-	string command = config.ValidatorPath.Content + " '" + domainFile + "' '" + problemFile + "' '" + planFile + "' > " + ValidatorLogName;
+	string path = config.GetPath("validatorpath").c_str();
+	string command = path + " '" + string(domainFile) + "' '" + string(problemFile) + "' '" + string(planFile) + "' > " + ValidatorLogName;
 	system(command.c_str());
 
 	ifstream stream(ValidatorLogName);

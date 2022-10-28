@@ -47,13 +47,7 @@ These are for debugging in VSCode.
             // Resolved by CMake Tools:
             "program": "${command:cmake.launchTargetPath}",
             "args": [
-                "--domain='Data/Classical tracks/Gripper/gripper_domain.pddl'",
-                "--problem='Data/Classical tracks/Gripper/gripper_problem.pddl'",
-                "--downwardpath=${workspaceFolder}/P7Requirements/downward/fast-downward.py",
-                "--reformulator=RandomWalker",
-                "--validatorpath=${workspaceFolder}/P7Requirements/VAL/validate",
-                "--timelimit=1000",
-                "--debugmode"
+                "settings.ini"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
@@ -80,12 +74,8 @@ These are for debugging in VSCode.
             // Resolved by CMake Tools:
             "program": "${command:cmake.launchTargetPath}",
             "args": [
-                "--domain='Data/Classical tracks/Gripper/gripper_domain.pddl'",
-                "--problem='Data/Classical tracks/Gripper/gripper_problem.pddl'",
-                "--downwardpath=${workspaceFolder}/P7Requirements/downward/fast-downward.py",
-                "--reformulator=RandomWalker",
-                "--validatorpath=${workspaceFolder}/P7Requirements//VAL/validate",
-                "--timelimit=1000"],
+                "settingsFast.ini"
+                ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",
             "environment": [
@@ -158,15 +148,9 @@ To launch in Visual Studio (Note: This is the inferior version):
       "project": "CMakeLists.txt",
       "projectTarget": "P7",
       "debuggerConfiguration": "gdb",
-      "cwd": "/root/.vs/P7/",
+      "cwd": "/root/.vs/P7/build",
       "args": [
-        "--domain='Data/Classical tracks/Gripper/gripper_domain.pddl'",
-        "--problem='Data/Classical tracks/Gripper/gripper_problem.pddl'",
-        "--downwardpath=$HOME/downward-projects/downward/fast-downward.py",
-        "--reformulator=RandomWalker",
-        "--validatorpath=$HOME/downward-projects/VAL/validate",
-        "--timelimit=500",
-        "--debugmode"
+        "settings.ini"
       ],
       "env": {
       }
@@ -177,13 +161,9 @@ To launch in Visual Studio (Note: This is the inferior version):
       "project": "CMakeLists.txt",
       "projectTarget": "P7",
       "debuggerConfiguration": "gdb",
-      "cwd": "/root/.vs/P7/",
+      "cwd": "/root/.vs/P7/build",
       "args": [
-        "--domain='Data/Classical tracks/Gripper/gripper_domain.pddl'",
-        "--problem='Data/Classical tracks/Gripper/gripper_problem.pddl'",
-        "--downwardpath=$HOME/downward-projects/downward/fast-downward.py",
-        "--reformulator=RandomWalker",
-        "--timelimit=500"
+        "settingsFast.ini"
       ],
       "env": {
       }

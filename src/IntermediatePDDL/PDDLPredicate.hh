@@ -10,6 +10,7 @@ struct PDDLPredicate {
     const std::vector<std::string> arguments;
     const int argumentCount;
     
+    PDDLPredicate(int argumentCount) : argumentCount(argumentCount) {};
     PDDLPredicate(std::string name, int argumentCount) : name(name), argumentCount(argumentCount) {};
     PDDLPredicate(std::string name, std::vector<std::string> arguments, int argumentCount) : name(name), arguments(arguments), argumentCount(argumentCount) {};
 };

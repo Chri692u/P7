@@ -3,7 +3,8 @@ target_link_libraries(Tests-PlanValidator
     PRIVATE 
         Catch2::Catch2WithMain
         PlanValidator
-        FileHelper)
+        FileHelper
+        Config)
 
 file(COPY Test/PlanValidators/TestFiles DESTINATION ${CMAKE_BINARY_DIR})
 

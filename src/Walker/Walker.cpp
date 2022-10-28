@@ -1,51 +1,59 @@
 #include "Walker.hpp"
 
-Path Walker::Walk() {
-    return Walk(instance->problem->initState);
-}
 
-Path Walker::Walk(PDDLState state) {
-    int depth = depthFunc->GetDepth();
-    std::vector<PDDLActionInstance> steps;
-    steps.reserve(depth);
-    PDDLState *tempState = new PDDLState(state.unaryFacts, state.multiFacts);
+Path Walker::Walk(BaseHeuristic *heuristic, BaseDepthFunction *depthFunc, const PDDLState *state) {
+    const int depth = depthFunc->GetDepth();
+    std::vector<PDDLActionInstance> steps; steps.reserve(depth);
+    std::unordered_set<PDDLState> visitedStates; visitedStates.reserve(depth);
+
+    PDDLState tempState = PDDLState(state->unaryFacts, state->multiFacts);
     for (int i = 0; i < depth; i++) {
-        std::vector<PDDLActionInstance> actions = actionGenerator.GenerateActions(tempState);
-        if (actions.size() == 0)
+        std::vector<PDDLActionInstance> possibleActions;
+        possibleActions = actionGenerator.GenerateActions(&tempState);
+
+        if (possibleActions.size() == 0) break;
+        PDDLActionInstance *chosenAction = heuristic->NextChoice(&tempState, &possibleActions);
+        tempState.DoAction(chosenAction);
+
+        if (visitedStates.contains(tempState))
             break;
-        PDDLActionInstance action = heuristic->NextChoice(actions);
-        totalActions += actions.size();
-        steps.push_back(action);
-        DoAction(tempState, &action);
+        else {
+            visitedStates.emplace(tempState);
+            steps.push_back(*chosenAction);
 
-        //std::cout << action->ToString(this->instance->problem, this->instance->domain);
-    }
-    free(tempState);
-    return Path(steps);
-}
+            if (config->GetBool("printwalkersteps")) {
+                std::string stateinfo = tempState.ToString(this->instance);
+                std::string actioninfo = chosenAction->ToString(this->instance);
+                std::string content = "echo '" + stateinfo + "\n" + actioninfo + "'" + " >> walkerLog";
 
-void Walker::DoAction(PDDLState *state, const PDDLActionInstance *action) {
-    int actionEffectLength = action->action->effects.size();
-    for (int i = 0; i < actionEffectLength; i++) {
-        PDDLLiteral effect = action->action->effects.at(i);
-        if (effect.args.size() == 1) {
-            // Handle unary effect
-            if (effect.value)
-                state->unaryFacts.at(effect.predicateIndex).emplace(action->objects.at(effect.args.at(0)));
-            else
-                state->unaryFacts.at(effect.predicateIndex).erase(action->objects.at(effect.args.at(0)));
-        } else {
-            // Handle multi effect
-            if (effect.value) {
-                if (state->ContainsFact(effect.predicateIndex, action->objects))
-                    continue;
-                state->multiFacts.at(effect.predicateIndex).push_back(MultiFact(action->objects));
-            } else {
-                if (!state->ContainsFact(effect.predicateIndex, action->objects))
-                    continue;
-                auto factSet = &state->multiFacts.at(effect.predicateIndex);
-                factSet->erase(std::remove(factSet->begin(), factSet->end(), action->objects), factSet->end());
+                system(content.c_str());
             }
         }
     }
+
+    return Path(steps);
+}
+
+std::vector<Path> Walker::Walk(BaseHeuristic *heuristic, BaseDepthFunction *depthFunc, BaseWidthFunction *widthFunc) {
+    if (config->GetBool("printwalkersteps")) {
+        std::string command = "truncate -s 0 walkerLog";
+        system(command.c_str());
+    }
+
+    ProgressBarHelper* bar;
+	if (config->GetBool("debugmode"))
+		bar = new ProgressBarHelper(widthFunc->max, "Walking", 1);
+
+    std::vector<Path> paths;
+    unsigned int current;
+    while (widthFunc->Iterate(&current)) {
+        Path path = Walk(heuristic, depthFunc, &this->instance->problem->initState);
+        paths.push_back(path);
+
+        if (config->GetBool("debugmode"))
+            bar->SetTo(current);
+    }
+    if (config->GetBool("debugmode"))
+        bar->End();
+    return paths;
 }

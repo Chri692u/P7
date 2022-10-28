@@ -7,12 +7,23 @@
 
 class TimeWidthFunction : public BaseWidthFunction {
 public:
-    TimeWidthFunction(int limitms) : Limitms(limitms), BaseWidthFunction() {}
-    int GetWidth() override;
+    TimeWidthFunction(unsigned int timeLimitMs) : limitMs(timeLimitMs), BaseWidthFunction(timeLimitMs) {};
+    bool Iterate(unsigned int *current) override {
+        if (!started) {
+            started = true;
+            startTime = std::chrono::steady_clock::now();
+        }
+
+        auto ellapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
+        if (ellapsed >= limitMs)
+            return false;
+        (*current) = ellapsed;
+        return true;
+    }
 private:
-    int64_t Limitms = 0;
-    bool IsStarted = false;
-    std::chrono::_V2::steady_clock::time_point StartTime;
+    const unsigned int limitMs;
+    bool started = false;
+    std::chrono::_V2::steady_clock::time_point startTime;
 };
 
 #endif

@@ -1,3 +1,5 @@
+# Go gack to parent dir
+cd ..;
 # Make directory to install all the packages into
 mkdir P7Requirements;
 cd P7Requirements;

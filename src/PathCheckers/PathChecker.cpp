@@ -3,28 +3,20 @@
 using namespace std;
 
 string PathsChecker::IsPathsOk(Config* config) {
-	if (!CheckItem(config->DomainFile))
-		return config->DomainFile.Content;
-	if (!CheckItem(config->ProblemFile))
-		return config->ProblemFile.Content;
-	if (!CheckItem(config->DownwardPath))
-		return config->DownwardPath.Content;
-	if (!CheckItem(config->ValidatorPath))
-		return config->ValidatorPath.Content;
+	if (!CheckItem(config->GetPath("domain")))
+		return config->GetPath("domain");
+	if (!CheckItem(config->GetPath("problem")))
+		return config->GetPath("problem");
+	if (!CheckItem(config->GetPath("downwardpath")))
+		return config->GetPath("downwardpath");
+	if (!CheckItem(config->GetPath("validatorpath")))
+		return config->GetPath("validatorpath");
 	return "";
 }
 
-template <typename T>
-bool PathsChecker::CheckItem(ConfigItem<T> item) {
-	if (item.Content != "") {
-		if (!FileHelper::DoesFileExist(item.Content)) {
-			return false;
-		}
-	}
-	else {
-		if (!FileHelper::DoesFileExist(item.DefaultContent)) {
-			return false;
-		}
+bool PathsChecker::CheckItem(filesystem::path path) {
+	if (!FileHelper::DoesFileExist(path)) {
+		return false;
 	}
 	return true;
 }

@@ -8,9 +8,11 @@ using namespace std;
 
 int main(int argc, char** argv){
 	 Config config;
-	// Do first as it quits on help
-	if (config.ParseArgs(&config, argc, argv))
-		return 0;  
+
+	 std::filesystem::path fileName = std::filesystem::path("settings.ini");
+	 if (argc > 1)
+		 fileName = std::filesystem::path(argv[1]);
+	 config.ParseConfigFile(fileName); 
 
 	RunReport report = RunReport();
 

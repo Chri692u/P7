@@ -27,3 +27,26 @@ target_sources(StringHelper
 target_include_directories(StringHelper
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
+
+add_library(Hashes "Hashes.hh")
+target_sources(Hashes
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/Hashes.cpp
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/Hashes.hh)
+target_include_directories(Hashes
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR})
+        
+add_library(ProgressBarHelper "ProgressBarHelper.cpp")
+target_sources(ProgressBarHelper
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/ProgressBarHelper.cpp
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/ProgressBarHelper.hh)
+target_include_directories(ProgressBarHelper
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(ProgressBarHelper
+    PRIVATE
+        ConsoleHelper)

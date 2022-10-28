@@ -16,6 +16,7 @@ include(Test/IntermediatePDDL/CMakeLists.txt)
 include(Test/PlanValidators/CMakeLists.txt)
 include(Test/Helpers/CMakeLists.txt)
 include(Test/DownwardRunner/CMakeLists.txt)
+include(Test/EntanglementFinder/CMakeLists.txt)
 
 add_executable(Test-All 
 	"Test/PDDLCodeGenerator/PDDLCodeGenerator.cpp"
@@ -29,6 +30,7 @@ add_executable(Test-All
 	"Test/Walker/DepthFunctions/ObjectActionDepthFunction.cpp"
 	"Test/PlanValidators/PlanValidator.cpp"
 	"Test/Helpers/StringHelper.cpp"
+	"Test/EntanglementFinder/EntanglementFinder.cpp"
 	"Test/DownwardRunner/DownwardRunner.cpp")
 target_link_libraries(Test-All 
 	PRIVATE 
@@ -50,7 +52,7 @@ target_link_libraries(Test-All
         PathChecker
         DownwardRunner
         FileHelper
+        EntanglementFinder
         Walker
         ActionGenerator
-        DepthFunction
-        WidthFunction)
+        DepthFunction)

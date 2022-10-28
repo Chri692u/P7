@@ -19,10 +19,10 @@ target_link_libraries(P7
         DownwardRunner
         FileHelper
         Walker
+        EntanglementFinder
         ActionGenerator
         DepthFunction
-        WidthFunction
-        MacroGeneration
-        )
+        Hashes
+        ProgressBarHelper)
 
 add_executable(P7Lab "P7Lab.cpp")

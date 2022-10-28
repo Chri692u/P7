@@ -7,3 +7,4 @@ target_sources(DownwardRunner
 target_include_directories(DownwardRunner
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
+target_link_libraries(DownwardRunner Config)

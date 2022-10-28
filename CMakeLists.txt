@@ -20,14 +20,16 @@ add_subdirectory(src/Reformulators)
 add_subdirectory(src/PDDLParser)
 add_subdirectory(src/SASCodeGenerator)
 add_subdirectory(src/SASParser)
+add_subdirectory(src/EntanglementFinder)
 add_subdirectory(src/Walker/)
 add_subdirectory(src/Walker/DepthFunctions/)
-add_subdirectory(src/Walker/WidthFunctions/)
 add_subdirectory(src/)
 
 
 file(COPY Data DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY "runP7.py" DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY "settings.ini" DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY "settingsFast.ini" DESTINATION ${CMAKE_BINARY_DIR})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

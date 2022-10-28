@@ -2,13 +2,14 @@
 
 using namespace std;
 
-vector<PDDLActionInstance> ActionGenerator::GenerateActions(const PDDLState *state) const {
+vector<PDDLActionInstance> ActionGenerator::GenerateActions(const PDDLState *state) {
     vector<PDDLActionInstance> legalActions;
     const int domainLength = domain->actions.size();
     for (int i = 0; i < domainLength; i++) {
         vector<PDDLActionInstance> tempActions = GenerateActions(&(domain->actions[i]), state);
         copy(tempActions.begin(), tempActions.end(), back_inserter(legalActions));
     }
+    totalActions += legalActions.size();
     return legalActions;
 }
 
@@ -67,7 +68,7 @@ unordered_set<unsigned int> ActionGenerator::GetCandidateObjects(const unordered
         for (int i = 0; i < problem->objects.size(); i++)
             candidateObjects.emplace(i);
         return candidateObjects;
-    } else {
+    } else if (state->unaryFacts.size() > 0) {
         unordered_set<unsigned int> candidateObjects;
 
         for (auto iter = literals->begin(); iter != literals->end(); iter++)
@@ -75,9 +76,18 @@ unordered_set<unsigned int> ActionGenerator::GetCandidateObjects(const unordered
                 candidateObjects = state->unaryFacts.at((*iter)->predicateIndex);
                 break;
             }
+
+        if (candidateObjects.size() == 0) {
+            candidateObjects.reserve(problem->objects.size());
+            for (int i = 0; i < problem->objects.size(); i++)
+                candidateObjects.emplace(i);
+        }
+        
         RemoveIllegal(candidateObjects, literals, state);
 
         return candidateObjects;
+    } else {
+        return unordered_set<unsigned int>();
     }
 }
 
@@ -95,7 +105,7 @@ void ActionGenerator::RemoveIllegal(std::unordered_set<unsigned int> &set, const
     std::erase_if(set, NewObjectNegContains);
 }
 
-bool ActionGenerator::IsLegal(const vector<PDDLLiteral> *literals, const PDDLState *state, vector<unsigned int> *objects) {
+bool ActionGenerator::IsLegal(const vector<PDDLLiteral> *literals, const PDDLState *state, const vector<unsigned int> *objects) {
     const int literalsLength = literals->size();
     for (int i = 0; i < literalsLength; i++) {
         const PDDLLiteral *literal = &(literals->at(i));
@@ -107,14 +117,16 @@ bool ActionGenerator::IsLegal(const vector<PDDLLiteral> *literals, const PDDLSta
     return true;
 }
 
-bool ActionGenerator::IsLegal(const PDDLLiteral *literal, const PDDLState *state, std::vector<unsigned int> *objects) {
+bool ActionGenerator::IsLegal(const PDDLLiteral *literal, const PDDLState *state, const std::vector<unsigned int> *objects) {
+    if (objects->size() == 0)
+        return false;
     if (literal->predicateIndex == 0) {
-        if ((objects->at(0) == objects->at(1)) != literal->value)
+        if ((objects->at(literal->args.at(0)) == objects->at(literal->args.at(1))) != literal->value)
             return false;
         else
             return true;
     } else {
-        if (state->ContainsFact(literal->predicateIndex, objects) != literal->value)
+        if (state->ContainsFact(literal->predicateIndex, &literal->args, objects) != literal->value)
             return false;
         else
             return true;
