@@ -5,11 +5,11 @@
 
 struct PDDLLiteral {
     // Index of domain predicate list
-    const unsigned int predicateIndex;
+    unsigned int predicateIndex;
     // What parameter index of action the given argument position refers to
-    const std::vector<unsigned int> args;
+    std::vector<unsigned int> args;
     // What value the predicate should be with the given arguments
-    const bool value;
+    bool value;
     PDDLLiteral(const unsigned int predicateIndex, const std::vector<unsigned int> args, const bool value) :
         predicateIndex(predicateIndex), args(args), value(value) {};
 
@@ -22,6 +22,10 @@ struct PDDLLiteral {
         // if (lhs.value != rhs.value)
         //     return false;
         return true;
+    }
+    /// @return Returns true if the predicateIndex and arguments are not the same
+    friend bool operator!=(const PDDLLiteral& lhs, const PDDLLiteral& rhs) {
+        return !(lhs == rhs);
     }
 };
 
