@@ -112,6 +112,102 @@ vector<PDDLLiteral> MacroGeneration::GeneratePrecons(vector<PDDLActionInstance> 
 
 vector<PDDLLiteral> MacroGeneration::GenerateEffs(vector<PDDLActionInstance> actions) {
     vector<PDDLLiteral> effects;
-    
+    set<unsigned int> unique_parameters;
+    int size = actions.size();
+    vector<PDDLLiteral> new_adds;
+    vector<PDDLLiteral> new_deletes;
+    // size-1 because there is no point doing anything on the last one
+    for (int i = 0; i < size-1; ++i) {
+        vector<PDDLLiteral> preliminary_adds;
+        vector<PDDLLiteral> preliminary_deletes;
+        
+        vector<PDDLLiteral> o1_adds;
+        vector<PDDLLiteral> o1_deletes;
+
+        if (i == 0) {
+            o1_adds = actions[i].action->GetAdds();
+            o1_deletes = actions[i].action->GetDeletes();
+        } else {
+            o1_adds = preliminary_adds;
+            o1_deletes = preliminary_deletes;
+        }
+
+        vector<PDDLLiteral> o2_adds = actions[i+1].action->GetAdds();
+        vector<PDDLLiteral> o2_deletes = actions[i+1].action->GetDeletes();
+
+        // adds(o1, o2) is (adds(o1) \ deletes(o2)) U adds(o2)
+        // this is adds(o1) \ deletes(o2) part allegedly
+        for (int j = 0; o1_adds.size(); ++j) {
+            bool is_in_deletes = false;
+            PDDLLiteral converted_o1_add = i == 0 ? ConvertLiteral(o1_adds[j], actions[i], unique_parameters) : o1_adds[j];
+            for (PDDLLiteral o2_delete : o2_deletes) {
+                PDDLLiteral converted_o2_delete = ConvertLiteral(o2_delete, actions[i+1], unique_parameters);
+                if (converted_o1_add == converted_o2_delete) {
+                    is_in_deletes = true;
+                    break;
+                }
+            }
+            if (!is_in_deletes) {
+                preliminary_adds.push_back(converted_o1_add);
+            }
+        }
+        // U adds(o2) part
+        for (PDDLLiteral o2_add : o2_adds) {
+            bool is_in_adds = false;
+            PDDLLiteral converted_o2_add = ConvertLiteral(o2_add, actions[i+1], unique_parameters);
+            // check if add already exists in preliminary_adds, add it if it doesnt
+            for (PDDLLiteral o1_add : preliminary_adds) {
+                if (converted_o2_add == o1_add) {
+                    is_in_adds = true;
+                    break;
+                } 
+            }
+            if (!is_in_adds) {
+                preliminary_adds.push_back(converted_o2_add);
+            }
+        }
+        // deletes(o1, o2) (deletes(o1) \ adds(o2)) U deletes(o2)
+        // deletes(o1) \ adds(o2)
+        for (int j = 0; o1_deletes.size(); ++j) {
+            bool is_in_adds = false;
+            PDDLLiteral converted_o1_delete = i == 0 ? ConvertLiteral(o1_deletes[j], actions[i], unique_parameters) : o1_deletes[j];
+            for (PDDLLiteral o2_add : o2_adds) {
+                PDDLLiteral converted_o2_add = ConvertLiteral(o2_add, actions[i+1], unique_parameters);
+                if (converted_o1_delete == converted_o2_add) {
+                    is_in_adds = true;
+                    break;
+                }
+            }
+            if (!is_in_adds) {
+                preliminary_deletes.push_back(converted_o1_delete);
+            }
+        }
+        // U deletes(o2) part
+        for (PDDLLiteral o2_delete : o2_deletes) {
+            bool is_in_deletes = false;
+            PDDLLiteral converted_o2_delete = ConvertLiteral(o2_delete, actions[i+1], unique_parameters);
+            // check if add already exists in preliminary_adds, add it if it doesnt
+            for (PDDLLiteral o1_delete : preliminary_adds) {
+                if (converted_o2_delete == o1_delete) {
+                    is_in_deletes = true;
+                    break;
+                } 
+            }
+            if (!is_in_deletes) {
+                preliminary_deletes.push_back(converted_o2_delete);
+            }
+        }
+
+        new_adds = preliminary_adds;
+        new_deletes = preliminary_deletes;
+    }
+
+    for (PDDLLiteral lit : new_adds) {
+        effects.push_back(lit);
+    }
+    for (PDDLLiteral lit : new_deletes) {
+        effects.push_back(lit);
+    }
+
     return effects;
 }
