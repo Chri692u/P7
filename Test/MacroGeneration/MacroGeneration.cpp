@@ -22,7 +22,7 @@ TEST_CASE(TAG + "GenerateMacroWith2Actions"){
    string macro_name = "move-pick-up-1";
    vector<string> params_1 = {"?x", "?y"};
    vector<string> params_2 = {"?x", "?y", "?z"};
-   vector<string> macro_params = {"x1", "x2", "x3", "x7"};
+   vector<string> macro_params = {"?x1", "?x2", "?x3", "?x7"};
    vector<PDDLLiteral> precons_1 = {
       PDDLLiteral(1, vector<unsigned int> (0), true),
       PDDLLiteral(1, vector<unsigned int> (1), true),

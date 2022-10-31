@@ -41,7 +41,7 @@ vector<string> MacroGeneration::GenerateParams(vector<PDDLActionInstance> action
     set<unsigned int> unique_parameters = GetUniqueParams(actions);
     vector<string> params;
     for (unsigned int obj : unique_parameters) {
-        params.push_back("x" + to_string(obj));
+        params.push_back("?x" + to_string(obj));
     }
     return params;
 }
