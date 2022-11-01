@@ -55,7 +55,7 @@ TEST_CASE(TAG + "GenerateMacroWith2Actions"){
       PDDLLiteral(4, vector<unsigned int> {0}, false)
    };
    vector<PDDLLiteral> effs_2 = {
-      PDDLLiteral(7, vector<unsigned int> {3, 2}, true),
+      PDDLLiteral(7, vector<unsigned int> {1, 2}, true),
       PDDLLiteral(5, vector<unsigned int> {0, 1}, false),
       PDDLLiteral(6, vector<unsigned int> {2}, false),
    };
