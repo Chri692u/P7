@@ -17,3 +17,6 @@ sudo zypper install gcc-c++ make flex bison && git clone https://github.com/KCL-
 
 #Install Lab
 sudo zypper install python3-pip && pip install lab
+
+#Install ninja
+sudo zypper install ninja
