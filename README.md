@@ -104,7 +104,7 @@ These are for debugging in VSCode.
                 "'--all'"
             ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/build",
             "environment": [
                 {
                     // add the directory where our target was built to the PATHs
