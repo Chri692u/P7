@@ -7,7 +7,7 @@ cd P7Requirements;
 sudo apt update;
 
 # install ninja
-sudo apt-get install ninja-build;
+sudo apt-get install ninja-build cmake;
 # Install Catch2
 git clone https://github.com/catchorg/Catch2.git Catch2 && cd Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF && sudo cmake --build build/ --target install && cd ..;
 # Install Fast Downward
@@ -16,5 +16,3 @@ sudo apt install cmake g++ git make python3 && git clone https://github.com/aiba
 sudo apt install g++ make flex bison && git clone https://github.com/KCL-Planning/VAL.git && cd VAL && git checkout a5565396007eee73ac36527fbf904142b3077c74 && make clean && sed -i 's/-Werror //g' Makefile && make;
 #Install Lab
 sudo apt install python3-pip && pip install lab
-#Install ninja
-sudo apt install ninja-build
