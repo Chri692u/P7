@@ -12,5 +12,6 @@ target_include_directories(CommonInterface
         ${CMAKE_SOURCE_DIR}/src/PlanGenerator)
 target_link_libraries(CommonInterface
     PRIVATE
+        PlanGenerator
         ConsoleHelper
         PDDLCodeGenerator)

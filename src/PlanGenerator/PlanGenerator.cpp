@@ -8,7 +8,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-vector<SASPlan> GenerateSASPlans(Config config, string domainPath) {
+vector<SASPlan> PlanGenerator::GenerateSASPlans(Config config, string domainPath) {
     vector<string> filePaths; 
     std::vector<SASPlan> plans;
     DownwardRunner runner = DownwardRunner();
