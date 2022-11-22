@@ -189,6 +189,15 @@ InterfaceStep<void> CommonInterface::GenerateNewSASPlan(SASPlan outputPlan) {
 	return InterfaceStep<void>();
 }
 
+InterfaceStep<vector<SASPlan>> CommonInterface::GenerateLearningPlans(string path){
+	ConsoleHelper::PrintInfo("Generating SAS Plans for learning...");
+	Report->Begin("Learning SAS plans");
+	PlanGenerator sasGenerator = PlanGenerator();
+	vector<SASPlan> plans = sasGenerator.GenerateSASPlans(config, path);
+	Report->Stop();
+	return InterfaceStep<vector<SASPlan>>(plans);
+}
+
 enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 
 	auto getReformulatorStep = GetReformulator(reformulatorIndex);

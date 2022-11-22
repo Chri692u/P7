@@ -98,6 +98,3 @@ def add_parsers(experiment):
 
     #reads from the driver.log but needs coverage in properties file that AnytimeSearchParser or SingleSearchParser gives
     experiment.add_parser(PLANNER_PARSER)
-
-    
-    

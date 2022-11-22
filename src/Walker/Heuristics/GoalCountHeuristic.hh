@@ -22,7 +22,6 @@ public:
 			if (i >= choices->size()) {
 				i = 0;
 			}
-
 			state->DoAction(&choices->at(i));
 			int value = Eval(state);
 			state->UndoAction(&choices->at(i));

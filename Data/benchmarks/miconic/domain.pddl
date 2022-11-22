@@ -21,10 +21,8 @@
 
 (:action depart
   :parameters (?f  ?p)
-  :precondition (and (floor ?f) (passenger ?p) (lift-at ?f) (destin ?p ?f)
-		     (boarded ?p))
-  :effect (and (not (boarded ?p))
-	       (served ?p)))
+  :precondition (and (floor ?f) (passenger ?p) (lift-at ?f) (destin ?p ?f) (boarded ?p))
+  :effect (and (not (boarded ?p)) (served ?p)))
 
 (:action up
   :parameters (?f1 ?f2)

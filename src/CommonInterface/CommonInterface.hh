@@ -16,6 +16,7 @@
 #include "../SASParser/SASParser.hh"
 #include "../Config/Config.hh"
 #include "../DownwardRunner/DownwardRunner.hh"
+#include "../PlanGenerator/PlanGenerator.hh"
 #include "../PlanValidators/PlanValidator.hh"
 #include "../IntermediatePDDL/PDDLInstance.hh"
 #include "../IntermediatePDDL/PDDLConverter.hh"
@@ -55,6 +56,7 @@ private:
 	InterfaceStep<SASPlan> ParseSASPlan();
 	InterfaceStep<SASPlan> RebuildSASPlan(SASPlan* reformulatedSASPlan, BaseReformulator* reformulator, PDDLInstance* instance);
 	InterfaceStep<void> GenerateNewSASPlan(SASPlan outputPlan);
+	InterfaceStep<std::vector<SASPlan>> GenerateLearningPlans(std::string path);
 
 	RunReport* Report;
 	Config config;
