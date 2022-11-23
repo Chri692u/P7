@@ -198,6 +198,10 @@ InterfaceStep<vector<SASPlan>> CommonInterface::GenerateLearningPlans(string pat
 	return InterfaceStep<vector<SASPlan>>(plans);
 }
 
+InterfaceStep<void> CommonInterface::LearnPlans(){
+	return
+}
+
 enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 
 	auto getReformulatorStep = GetReformulator(reformulatorIndex);
