@@ -197,10 +197,11 @@ InterfaceStep<vector<SASPlan>> CommonInterface::GenerateLearningPlans(string pat
 	Report->Stop();
 	return InterfaceStep<vector<SASPlan>>(plans);
 }
-
+/*
 InterfaceStep<void> CommonInterface::LearnPlans(){
 	return
 }
+*/
 
 enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 

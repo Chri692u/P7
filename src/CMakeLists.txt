@@ -2,6 +2,7 @@ add_executable(P7 "P7.cpp")
 target_link_libraries(P7 
     PRIVATE
         PlanGenerator
+        Learner
         RunReport
         Config
         StringHelper
