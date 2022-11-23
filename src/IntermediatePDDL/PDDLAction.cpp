@@ -33,3 +33,21 @@ std::vector<std::unordered_set<unsigned int>> PDDLAction::GenerateApplicablePred
     }
     return set;
 };
+
+std::vector<PDDLLiteral> PDDLAction::GetAdds() const {
+    std::vector<PDDLLiteral> return_vec;
+    for (PDDLLiteral lit : (*this).effects) {
+        if (lit.value) 
+            return_vec.push_back(lit);
+    }
+    return return_vec;
+}
+
+std::vector<PDDLLiteral> PDDLAction::GetDeletes() const {
+    std::vector<PDDLLiteral> return_vec;
+    for (PDDLLiteral lit : (*this).effects) {
+        if (!lit.value) 
+            return_vec.push_back(lit);
+    }
+    return return_vec;
+}

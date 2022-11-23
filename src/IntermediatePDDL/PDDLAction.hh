@@ -20,6 +20,7 @@ struct PDDLAction {
     const std::vector<std::unordered_set<unsigned int>> applicableUnaryPredicates;
     // For each parameter, what non unary preconditions mention it
     const std::vector<std::unordered_set<const PDDLLiteral*>> applicableMultiLiterals;
+    
     PDDLAction() : name("Not Set") {};
     PDDLAction(std::string name) : name(name) {};
 
@@ -44,6 +45,8 @@ struct PDDLAction {
             return false;
         return true;
     }
+    std::vector<PDDLLiteral> GetAdds() const;
+    std::vector<PDDLLiteral> GetDeletes() const;
 
 private:
     std::vector<std::unordered_set<const PDDLLiteral*>> GenerateApplicableLiterals(bool unary) const;
