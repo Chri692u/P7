@@ -5,24 +5,40 @@
 
 using namespace std;
 
-enum EntangType {Init, Goal};
-
 vector<vector<PDDLAction>> Learner::IteratePlans(vector<SASPlan> plans, PDDLInstance pddl){
-    vector<vector<pair<SASAction, int>>> acts;
+    vector<vector<pair<PDDLAction, int>>> acts;
     vector<vector<PDDLAction>> macros;
-    for (auto plan : plans){
-        acts.push_back(AnalyzePlan(pddl, plan));
-        //generate macros
+    PDDLDomain domain = *(pddl.domain);
+    vector<PDDLAction> pddlActs = domain.actions;
+    vector<pair<PDDLAction, int>> entanglements;
+
+    for(auto o : os){
+        ops.push_back(o.first);
     }
-    return macros;
+
+    for (auto plan : plans){
+        AnalyzePlan(pddl, plan);
+    }
+
+    for (string o: ops){
+        for(auto act : pddlActs){
+            if(act.name == o) {
+                if (flawRatio > (float) initViolations[o] / (float) os[o]){
+                    entanglements.push_back(pair<PDDLAction, int>{act, Init});
+                }
+
+                if (flawRatio > (float) goalViolations[o] / (float) os[o]){
+                    entanglements.push_back(pair<PDDLAction, int>{act, Goal});
+                }
+            }
+        }
+    }
+
+    return descendActions(entanglements, plans);
 }
 
-vector<pair<SASAction, int>> Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
-    vector<pair<SASAction, int>> entanglements;
-    map<string, int> os;
-    map<string, int> goalViolations;
-    map<string, int> initViolations;
-
+void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
+    vector<pair<PDDLAction, int>> entanglements;
     PDDLProblem problem = *(pddl.problem);    //from the initial state from pddl
     PDDLDomain domain = *(pddl.domain);       //predicates from domain
     vector<PDDLAction> pddlActs = domain.actions;
@@ -63,24 +79,60 @@ vector<pair<SASAction, int>> Learner::AnalyzePlan(PDDLInstance pddl, SASPlan pla
         }
         
     }
+}
 
-    vector<string> ops;
-    for(auto o : os){
-        ops.push_back(o.first);
+vector<vector<PDDLAction>> Learner::descendActions(vector<pair<PDDLAction, int>> entanglements, vector<SASPlan> plans){
+    vector<vector<PDDLAction>> oldCandidates;
+    vector<vector<PDDLAction>> candidates;
+    for(auto ent : entanglements){
+        for (auto candidate : GetCandidates(vector<PDDLAction>{ent.first}, plans)){
+            candidates.push_back(candidate);
+        }
+        while (oldCandidates.size() != candidates.size()){
+            oldCandidates.clear();
+            for(auto candidate : candidates){
+                oldCandidates.push_back(candidate);
+            }
+            candidates.clear();
+            for(auto candidate : oldCandidates){
+                for (auto newCandidate : GetCandidates(candidate, plans)){
+                    candidates.push_back(newCandidate);
+                }
+            }
+        }
     }
+    return candidates;
+    /*
+    for hver entanglement:
+        går vi planer igennem indtil: Intermediate flawratio > macroFlaw (konstant)
+            vi vil finde hvor i planen vores entanglements er
+            så vil vi tage den næste action af de steder vores entanglements opstår
+            Tæl hvor mange gange entanglement efterfulgt af en action kommer
 
-    //træk actions ud af domain
-    
-    //compare alle strenge i domainet til alle vores keys ops
-        //hvor hver action der findes:
-            // Hvis flawRatio  > initViolations[action.name] / os[action.name]
-                //entanglements.push_back( pair<string, int>{action.name, Init});
 
-            // eller hvis flawRatio  > goalViolations[action.name] / os[action.name]
-                //entanglements.push_back(pair<string, int>{action.name, Goal});
+    */
+}
 
-    return entanglements;
+vector<vector<PDDLAction>> Learner::GetCandidates(vector<PDDLAction> acts, vector<SASPlan> plans){
+    /*
+    let candidates = vector<vector<PDDLAction>>
+    let realCandidates = vector<vector<PDDLAction>>
+    let actSequence = "";
 
+    for(auto plan in plans){
+        find indices for act i planen
+        find actions der kommer efter acts sekvensen (entanglement)
+        hvis actions er dependent(i < j, (e+(ai) ∩ p(aj )) 6 = ∅ and (e+(ai) ∩ p(aj )) (not ⊆) ⋃j−1 t=i+1 e+(at).) så: 
+            candidates.push_back(actions)
+    }
+    for(auto candidate : candidates){
+        hvis den er over macroFlaw, så er det en candidate og vi tilføjer den til listen
+        realCandidates.push_back(candidate);
+    }
+    candidate.size() == 0 ? return vector<vector<PDDLActions>>{acts} : return realCandidates
+    */
+   vector<vector<PDDLAction>> lol;
+   return lol;
 }
 
 bool Learner::checkPredicates(PDDLProblem prob, vector<PDDLAction> acts, SASAction sAct, int flag){
