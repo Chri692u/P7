@@ -1,6 +1,7 @@
 ﻿#include "CommonInterface.hh"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 InterfaceStep<BaseReformulator*> CommonInterface::GetReformulator(int reformulatorIndex) {
 	ConsoleHelper::PrintInfo("Finding reformulator algorithm...");

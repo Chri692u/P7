@@ -30,7 +30,8 @@ vector<SASPlan> PlanGenerator::GenerateSASPlans(Config config, string domainPath
             //Run downward
             runner.RunDownward(config, domainPath, filePaths[attempt], NoTimeLimit);
             //Save the plan
-            SASPlan plan = parser.Parse(filePaths[attempt]);
+            fs::path relativePath = fs::current_path();
+            SASPlan plan = parser.Parse(relativePath / "sas_plan");
             filePaths.erase(filePaths.begin()+attempt);
 
            plans.push_back(plan);

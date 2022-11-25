@@ -70,6 +70,7 @@ vector<pair<SASAction, int>> Learner::AnalyzePlan(PDDLInstance pddl, SASPlan pla
     }
 
     //træk actions ud af domain
+    
     //compare alle strenge i domainet til alle vores keys ops
         //hvor hver action der findes:
             // Hvis flawRatio  > initViolations[action.name] / os[action.name]
