@@ -34,7 +34,7 @@ vector<vector<PDDLAction>> Learner::IteratePlans(vector<SASPlan> plans, PDDLInst
         }
     }
 
-    return descendActions(entanglements, plans);
+    return descendActions(pddl, entanglements, plans);
 }
 
 void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
@@ -81,11 +81,11 @@ void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
     }
 }
 
-vector<vector<PDDLAction>> Learner::descendActions(vector<pair<PDDLAction, int>> entanglements, vector<SASPlan> plans){
+vector<vector<PDDLAction>> Learner::descendActions(PDDLInstance pddl, vector<pair<PDDLAction, int>> entanglements, vector<SASPlan> plans){
     vector<vector<PDDLAction>> oldCandidates;
     vector<vector<PDDLAction>> candidates;
     for(auto ent : entanglements){
-        for (auto candidate : GetCandidates(vector<PDDLAction>{ent.first}, plans)){
+        for (auto candidate : GetCandidates(pddl, vector<PDDLAction>{ent.first}, plans)){
             candidates.push_back(candidate);
         }
         while (oldCandidates.size() != candidates.size()){
@@ -95,7 +95,7 @@ vector<vector<PDDLAction>> Learner::descendActions(vector<pair<PDDLAction, int>>
             }
             candidates.clear();
             for(auto candidate : oldCandidates){
-                for (auto newCandidate : GetCandidates(candidate, plans)){
+                for (auto newCandidate : GetCandidates(pddl, candidate, plans)){
                     candidates.push_back(newCandidate);
                 }
             }
@@ -144,26 +144,9 @@ vector<vector<PDDLAction>> Learner::GetCandidates(PDDLInstance pddl, vector<PDDL
                 }
             }
         }
-        for (int i = acts.size(); i < plan.actions.size(); ++i) {
-            int j = i-1; // final countdown :3
-            int k = acts.size()-1; // what we lookin for
-            vector<int> foundActIndices;
-            for (auto _ : acts) {
-                while (j >= 0) {
-                    --j;
-                    if (plan.actions[j].name == acts[k].name) {
-                        --k;
-                        foundActIndices.push_back(j);
-                        break;
-                    }
-                }
-            }
-            if (k == 0) {
-                PDDLAction macroTail = acts[foundActIndices[0]];
-
-                // check if action is dependent on first one in foundActIndices
-            }
-        }
+        // iteratively find dependent actions which are in current macro (acts) -> [acts]
+        // for each action j check if j is dependent on actions in any of [acts]
+        // if true add chain candidates
     }
 
     vector<vector<PDDLAction>> lol;

@@ -13,7 +13,7 @@ private:
     std::map<std::string, int> initViolations;
     std::vector<std::string> ops;
     bool checkPredicates(PDDLProblem prob, std::vector<PDDLAction> acts, SASAction sAct, int flag);
-    std::vector<std::vector<PDDLAction>> descendActions(std::vector<std::pair<PDDLAction, int>> entanglements, std::vector<SASPlan> plans);
+    std::vector<std::vector<PDDLAction>> descendActions(PDDLInstance pddl, std::vector<std::pair<PDDLAction, int>> entanglements, std::vector<SASPlan> plans);
     std::vector<std::vector<PDDLAction>> GetCandidates(PDDLInstance pddl, std::vector<PDDLAction> acts, std::vector<SASPlan> plans);
 public:
     enum EntangType {Init, Goal};
