@@ -113,7 +113,7 @@ vector<vector<PDDLAction>> Learner::descendActions(vector<pair<PDDLAction, int>>
     */
 }
 
-vector<vector<PDDLAction>> Learner::GetCandidates(vector<PDDLAction> acts, vector<SASPlan> plans){
+vector<vector<PDDLAction>> Learner::GetCandidates(PDDLInstance pddl, vector<PDDLAction> acts, vector<SASPlan> plans){
     /*
     let candidates = vector<vector<PDDLAction>>
     let realCandidates = vector<vector<PDDLAction>>
@@ -131,8 +131,43 @@ vector<vector<PDDLAction>> Learner::GetCandidates(vector<PDDLAction> acts, vecto
     }
     candidate.size() == 0 ? return vector<vector<PDDLActions>>{acts} : return realCandidates
     */
-   vector<vector<PDDLAction>> lol;
-   return lol;
+    vector<vector<PDDLAction>> candidates;
+    vector<vector<PDDLAction>> realCandidates;
+
+    for (auto plan : plans) {
+        map<string, vector<int>> actIndices;
+        for (auto act : acts) {
+            actIndices[act.name] = {};
+            for (int i = 0; i < plan.actions.size(); ++i) {
+                if (plan.actions[i].name == act.name) {
+                    actIndices[act.name].push_back(i);
+                }
+            }
+        }
+        for (int i = acts.size(); i < plan.actions.size(); ++i) {
+            int j = i-1; // final countdown :3
+            int k = acts.size()-1; // what we lookin for
+            vector<int> foundActIndices;
+            for (auto _ : acts) {
+                while (j >= 0) {
+                    --j;
+                    if (plan.actions[j].name == acts[k].name) {
+                        --k;
+                        foundActIndices.push_back(j);
+                        break;
+                    }
+                }
+            }
+            if (k == 0) {
+                PDDLAction macroTail = acts[foundActIndices[0]];
+
+                // check if action is dependent on first one in foundActIndices
+            }
+        }
+    }
+
+    vector<vector<PDDLAction>> lol;
+    return lol;
 }
 
 bool Learner::checkPredicates(PDDLProblem prob, vector<PDDLAction> acts, SASAction sAct, int flag){
