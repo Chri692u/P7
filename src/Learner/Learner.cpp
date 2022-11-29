@@ -132,10 +132,12 @@ vector<vector<PDDLAction>> Learner::GetCandidates(PDDLInstance pddl, vector<PDDL
     candidate.size() == 0 ? return vector<vector<PDDLActions>>{acts} : return realCandidates
     */
     vector<vector<PDDLAction>> candidates;
-    vector<vector<PDDLAction>> realCandidates;
+    
+    unordered_map<string, int> candidateCount;
+    unordered_map<string, int> totalCandidateCount;
 
     for (auto plan : plans) {
-        map<string, vector<int>> actIndices;
+        unordered_map<string, vector<int>> actIndices;
         for (auto act : acts) {
             actIndices[act.name] = {};
             for (int i = 0; i < plan.actions.size(); ++i) {
@@ -144,13 +146,84 @@ vector<vector<PDDLAction>> Learner::GetCandidates(PDDLInstance pddl, vector<PDDL
                 }
             }
         }
+        for (int j = acts.size(); j < plan.actions.size(); ++j) {
+            for (int i = j-1; i >= 0; --i) {
+                if (!actIndices.contains(plan.actions[i].name)) continue;
+                // get intersection of positive effects between i and preconditions of j
+                vector<pair<int, vector<string>>> larry = predIntersect(
+                        pddl, 
+                        pddl.domain->getAction(plan.actions[i].name), plan.actions[i],
+                        pddl.domain->getAction(plan.actions[j].name), plan.actions[j]);
+                // no need to continue if larry is empty
+                if (larry.size() == 0) continue;
+                // check if actions between i and j have effects which are in intersection
+                vector<pair<int, vector<string>>> olivia;
+                for (int t = i + 1; t < j; ++t) {
+                    PDDLAction actT = pddl.domain->getAction(plan.actions[t].name);
+                    for (auto addT : actT.GetAdds()) {
+                        vector<string> predparams;
+                        for (auto p : addT.args) {
+                            predparams.push_back(actT.parameters[p]);
+                        }
+                        olivia.push_back(make_pair(addT.predicateIndex, predparams));
+                    }
+                }
+                // check if intersection larry isnt a subset of olivia
+                bool isSubSet = false;
+                 for (auto iPair : larry) {
+                    for (auto tPair : olivia) {
+                        if (iPair.first != tPair.first) continue;
+                        if (iPair.second != tPair.second) continue;
+                        isSubSet = true;
+                    }
+                }
+                
+                if (!isSubSet) {
+                    if (candidateCount.contains(plan.actions[j].name))
+                        ++candidateCount[plan.actions[j].name];
+                    else
+                        candidateCount[plan.actions[j].name] = 1;
+                }
+            }
+            if (totalCandidateCount.contains(plan.actions[j].name))
+                ++totalCandidateCount[plan.actions[j].name];
+            else
+                totalCandidateCount[plan.actions[j].name] = 1;
+        }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
         // for each action j check if j is dependent on actions in any of [acts]
         // if true add chain candidates
     }
+    for (auto c : candidateCount) {
+        if ((float)c.second / (float)totalCandidateCount[c.first] < macroFlawRatio) {
+            vector<PDDLAction> mark;
+            for (auto emilia : acts) {
+                mark.push_back(emilia);
+            }
+            mark.push_back(pddl.domain->getAction(c.first));
+            candidates.push_back(mark);
+        }
+    }
+    return candidates;
+}
 
-    vector<vector<PDDLAction>> lol;
-    return lol;
+vector<pair<int, vector<string>>> Learner::predIntersect(PDDLInstance pddl, PDDLAction iAct, SASAction iSASAct, PDDLAction jAct, SASAction jSASAct) {
+    vector<pair<int, vector<string>>> preds;
+    for (auto ip : iAct.GetAdds()) {
+        for (auto jp : jAct.preconditions) {
+            if (jp.predicateIndex != ip.predicateIndex) continue;
+            bool paramsEqual = true;
+            for (int i = 0; i < jp.args.size(); ++i) {
+                if (iSASAct.parameters[i] != jSASAct.parameters[i]) paramsEqual = false;
+            }
+            vector<string> predparams;
+            for (auto p : jp.args) {
+                predparams.push_back(jSASAct.parameters[p]);
+            }
+            if (paramsEqual) preds.push_back(make_pair(jp.predicateIndex, predparams));
+        }
+    }
+    return preds;
 }
 
 bool Learner::checkPredicates(PDDLProblem prob, vector<PDDLAction> acts, SASAction sAct, int flag){

@@ -20,6 +20,14 @@ struct PDDLDomain {
     const std::vector<PDDLAction> actions;
     // Set of predicates which are in no effects
     const std::unordered_set<unsigned int> staticPredicates;
+    PDDLAction getAction(std::string name) {
+        for (auto act : actions) {
+            if (act.name == name) {
+                return act;
+            }
+        }
+        return PDDLAction(name);
+    }
     PDDLDomain() : name("Not Set") {};
     PDDLDomain(std::vector<PDDLAction> actions) : name("Only actions"), actions(actions) {};
     PDDLDomain(std::string name, std::vector<std::string> requirements, std::vector<PDDLPredicate> predicates, 
