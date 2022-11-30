@@ -3,10 +3,11 @@
 
 #include "../Config/config.hh"
 #include "../SASParser/SASParser.hh"
+#include "../IntermediatePDDL/PDDLInstance.hh"
 
 class PlanGenerator {
 public:
-    std::vector<SASPlan> GenerateSASPlans(Config config, std::string path);
+   std::vector<std::pair<SASPlan, PDDLInstance>> GenerateSASPlans(Config config, std::string path);
 };
 
 #endif

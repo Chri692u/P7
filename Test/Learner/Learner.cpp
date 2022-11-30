@@ -6,7 +6,18 @@
 const std::string TAG = "Learner ";
 
 TEST_CASE(TAG + "Domain = gripper") {
-    Config config = Config();
-    PlanGenerator gen = PlanGenerator();
+    Config config;
+
+	std::filesystem::path fileName = std::filesystem::path("settings.ini");
+	if (argc > 1)
+		fileName = std::filesystem::path(argv[1]);
+        
+	config.ParseConfigFile(fileName); 
+    PlanGenerator gen;
+    Learner learner;
+
+    std::vector<SASPlan> plans = gen.GenerateSASPlans(config, "/gripper/");
+    //get pddl domain + problem
+    learner.IteratePlans(plans, );
     REQUIRE();
 }
