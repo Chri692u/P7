@@ -18,6 +18,6 @@ TEST_CASE(TAG + "Domain = gripper") {
 
     std::vector<SASPlan> plans = gen.GenerateSASPlans(config, "/gripper/");
     //get pddl domain + problem
-    learner.IteratePlans(plans, );
+    learner.IteratePlans(plans, ); //learner skal tage det nye par ind, så det skal fixes før det her kan lade sig gøre
     REQUIRE();
 }

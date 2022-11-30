@@ -190,7 +190,7 @@ InterfaceStep<void> CommonInterface::GenerateNewSASPlan(SASPlan outputPlan) {
 	return InterfaceStep<void>();
 }
 
-InterfaceStep<vector<SASPlan>> CommonInterface::GenerateLearningPlans(string path){
+InterfaceStep<vector<pair<SASPlan, PDDLInstance>>> CommonInterface::GenerateLearningPlans(string path){
 	ConsoleHelper::PrintInfo("Generating SAS Plans for learning...");
 	Report->Begin("Learning SAS plans");
 	PlanGenerator sasGenerator = PlanGenerator();
