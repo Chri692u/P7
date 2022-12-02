@@ -7,17 +7,20 @@ const std::string TAG = "Learner ";
 
 TEST_CASE(TAG + "Domain = gripper") {
     Config config;
-
-	std::filesystem::path fileName = std::filesystem::path("settings.ini");
-	if (argc > 1)
-		fileName = std::filesystem::path(argv[1]);
-        
-	config.ParseConfigFile(fileName); 
     PlanGenerator gen;
     Learner learner;
 
-    std::vector<SASPlan> plans = gen.GenerateSASPlans(config, "/gripper/");
-    //get pddl domain + problem
-    learner.IteratePlans(plans, ); //learner skal tage det nye par ind, så det skal fixes før det her kan lade sig gøre
-    REQUIRE();
+	std::filesystem::path fileName = std::filesystem::path("./settings.ini");
+    std::string domainPath = "./gripper/domain.pddl";
+	config.ParseConfigFile(fileName); 
+    
+    /*
+    due to unexpected exception with message:
+    filesystem error: directory iterator cannot open directory: Not a directory
+    [./gripper/domain.pddl]
+    */
+    std::vector<std::pair<SASPlan, PDDLInstance>> plans = gen.GenerateSASPlans(config, domainPath);
+
+    learner.IteratePlans(plans);
+    REQUIRE(1==0);
 }

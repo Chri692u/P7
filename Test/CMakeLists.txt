@@ -17,6 +17,7 @@ include(Test/Helpers/CMakeLists.txt)
 include(Test/DownwardRunner/CMakeLists.txt)
 include(Test/EntanglementFinder/CMakeLists.txt)
 include(Test/MacroGenerator/CMakeLists.txt)
+include(Test/Learner/CMakeLists.txt)
 
 add_executable(Test-All 
 	"Test/PDDLCodeGenerator/PDDLCodeGenerator.cpp"
@@ -31,7 +32,8 @@ add_executable(Test-All
 	"Test/EntanglementFinder/EntanglementFinder.cpp"
 	"Test/EntanglementFinder/Hashes.cpp"
 	"Test/DownwardRunner/DownwardRunner.cpp"
-    "Test/MacroGenerator/MacroGenerator.cpp")
+    "Test/MacroGenerator/MacroGenerator.cpp"
+    "Test/Learner/Learner.cpp")
 target_link_libraries(Test-All 
 	PRIVATE 
 		Catch2::Catch2WithMain
@@ -41,6 +43,7 @@ target_link_libraries(Test-All
         ConsoleHelper
         FileVerifier
         PathChecker
+        Learner
         PDDLCodeGenerator
         CommonInterface
         PlanValidator

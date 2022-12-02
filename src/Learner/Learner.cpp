@@ -1,13 +1,12 @@
 #include "Learner.hh"
-#include "unordered_set"
-#include <map>
-#include <ranges>
 
 using namespace std;
 
-MacroList Learner::IteratePlans(vector<SASPlan> plans, PDDLInstance pddl){
+MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance>> plans){
     vector<vector<pair<PDDLAction, int>>> acts;
     MacroList macros;
+    PDDLInstance pddl = plans[0].second;
+    vector<SASPlan> sasPlans;
     PDDLDomain domain = *(pddl.domain);
     Macro pddlActs = domain.actions;
     vector<pair<PDDLAction, int>> entanglements;
@@ -17,7 +16,7 @@ MacroList Learner::IteratePlans(vector<SASPlan> plans, PDDLInstance pddl){
     }
 
     for (auto plan : plans){
-        AnalyzePlan(pddl, plan);
+        AnalyzePlan(plan.second, plan.first);
     }
 
     for (string o: ops){
@@ -34,7 +33,11 @@ MacroList Learner::IteratePlans(vector<SASPlan> plans, PDDLInstance pddl){
         }
     }
 
-    return descendActions(pddl, entanglements, plans);
+    for (auto plan : plans){
+        sasPlans.push_back(plan.first);
+    }
+    
+    return descendActions(pddl, entanglements, sasPlans);
 }
 
 void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
@@ -269,9 +272,9 @@ vector<pair<int, vector<string>>> Learner::predIntersect(PDDLInstance pddl, PDDL
     return preds;
 }
 
-Macro lookupRanges(int start, int end, Macro candidate){
+Macro Learner::lookupRanges(int start, int end, Macro candidate){
     Macro macroRange;
-    for (int i = start; i < end; i++){
+    for (int i = start; i < end; ++i){
         macroRange.push_back(candidate[i]);
     }
     return macroRange;

@@ -5,6 +5,10 @@
 #include "../SASParser/SASParser.hh"
 #include "../IntermediatePDDL/PDDLAction.hh"
 #include "../IntermediatePDDL/PDDLInstance.hh"
+#include "../Config/Config.hh"
+#include "unordered_set"
+#include <map>
+#include <ranges>
 
 typedef std::vector<PDDLAction> Macro;
 typedef std::vector<Macro> MacroList;
@@ -29,7 +33,7 @@ public:
     double flawRatio = 0.1;
     double macroFlawRatio = 0.3;
 
-    std::vector<Macro> IteratePlans(std::vector<SASPlan> plans, PDDLInstance pddl);
+    std::vector<Macro> IteratePlans(std::vector<std::pair<SASPlan, PDDLInstance>> plan);
     void AnalyzePlan(PDDLInstance pddl, SASPlan plan);
 };
 

@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "PlanGenerator.hh"
-#include "../SASParser/SASParser.hh"
-#include "../DownwardRunner/DownwardRunner.hh"
-#include "../PDDLParser/pddldriver.hh"
-#include "../IntermediatePDDL/PDDLConverter.hh"
-#include "../IntermediatePDDL/PDDLInstance.hh"
+
 
 using namespace std;
 namespace fs = std::filesystem;
