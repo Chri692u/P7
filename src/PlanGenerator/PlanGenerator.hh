@@ -10,7 +10,7 @@
 
 class PlanGenerator {
 public:
-   std::vector<std::pair<SASPlan, PDDLInstance>> GenerateSASPlans(Config config, std::string domainPath);
+   std::vector<std::pair<SASPlan, PDDLInstance>> GenerateSASPlans(Config config, std::string domainFolder);
 };
 
 #endif
