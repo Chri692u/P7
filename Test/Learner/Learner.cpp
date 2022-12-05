@@ -14,8 +14,6 @@ TEST_CASE(TAG + "Domain = gripper"){
     std::string domainPath = "gripper";
 	config.ParseConfigFile(fileName); 
     
-    std::vector<std::pair<SASPlan, PDDLInstance>> plans = gen.GenerateSASPlans(config, domainPath);
-    
-    learner.IteratePlans(plans);
+    learner.IteratePlans(gen.GenerateSASPlans(config, domainPath));
     REQUIRE(1==0);
 }

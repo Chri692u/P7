@@ -2,13 +2,13 @@
 
 using namespace std;
 
-MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance>> plans){
+MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance*>> plans){
     vector<vector<pair<PDDLAction, int>>> acts;
     MacroList macros;
-    PDDLInstance pddl = plans[0].second;
+    PDDLInstance* pddl = plans.at(0).second;
     vector<SASPlan> sasPlans;
-    PDDLDomain domain = *(pddl.domain);
-    Macro pddlActs = domain.actions;
+    PDDLDomain* domain = pddl->domain;
+    const Macro pddlActs = domain->actions;
     vector<pair<PDDLAction, int>> entanglements;
 
     for(auto o : os){
@@ -22,11 +22,11 @@ MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance>> plans){
     for (string o: ops){
         for(auto act : pddlActs){
             if(act.name == o) {
-                if (flawRatio > (float) initViolations[o] / (float) os[o]){
+                if (flawRatio > (float) initViolations.at(o) / (float) os.at(o)){
                     entanglements.push_back(pair<PDDLAction, int>{act, Init});
                 }
 
-                if (flawRatio > (float) goalViolations[o] / (float) os[o]){
+                if (flawRatio > (float) goalViolations.at(o) / (float) os.at(o)){
                     entanglements.push_back(pair<PDDLAction, int>{act, Goal});
                 }
             }
@@ -37,14 +37,14 @@ MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance>> plans){
         sasPlans.push_back(plan.first);
     }
     
-    return descendActions(pddl, entanglements, sasPlans);
+    return descendActions(*pddl, entanglements, sasPlans);
 }
 
-void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
+void Learner::AnalyzePlan(PDDLInstance* pddl, SASPlan plan){
     vector<pair<PDDLAction, int>> entanglements;
-    PDDLProblem problem = *(pddl.problem);    //from the initial state from pddl
-    PDDLDomain domain = *(pddl.domain);       //predicates from domain
-    Macro pddlActs = domain.actions;
+    PDDLProblem* problem = pddl->problem;    //from the initial state from pddl
+    PDDLDomain* domain = pddl->domain;       //predicates from domain
+    const Macro pddlActs = domain->actions;
 
     double initTempRatio = 0;
     double goalTempRatio = 0;
@@ -60,6 +60,7 @@ void Learner::AnalyzePlan(PDDLInstance pddl, SASPlan plan){
         bool notViolated = false;
 
         //check if goal state does not violate outer entanglements
+        // BIG EXPLOSION ALLAH PROBLEM IS WRONG XD
         if (checkPredicates(problem, pddlActs, action, Goal)){
             notViolated = true;
             break;
@@ -144,7 +145,7 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
         for (auto act : acts) {
             actIndices[act.name] = {};
             for (int i = 0; i < plan.actions.size(); ++i) {
-                if (plan.actions[i].name == act.name) {
+                if (plan.actions.at(i).name == act.name) {
                     actIndices[act.name].push_back(i);
                 }
             }
@@ -156,7 +157,7 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
                 macroIndices[act.first] = 0;
                 mateo[act.first] = 0;
                 for (int k = 0; plan.actions.size() > k; ++k){
-                    if (plan.actions[k].name == act.first){
+                    if (plan.actions.at(k).name == act.first){
                         ++macroIndices[act.first];
                     }
                 }
@@ -168,22 +169,22 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
             }
             if(mateo != macroIndices) continue;
             for (int i = j-1; i >= 0; --i) {
-                if (!actIndices.contains(plan.actions[i].name)) continue;
+                if (!actIndices.contains(plan.actions.at(i).name)) continue;
                 // get intersection of positive effects between i and preconditions of j
                 vector<pair<int, vector<string>>> larry = predIntersect(
                         pddl, 
-                        pddl.domain->getAction(plan.actions[i].name), plan.actions[i],
-                        pddl.domain->getAction(plan.actions[j].name), plan.actions[j]);
+                        pddl.domain->getAction(plan.actions.at(i).name), plan.actions.at(i),
+                        pddl.domain->getAction(plan.actions.at(j).name), plan.actions.at(j));
                 // no need to continue if larry is empty
                 if (larry.size() == 0) continue;
                 // check if actions between i and j have effects which are in intersection
                 vector<pair<int, vector<string>>> olivia;
                 for (int t = i + 1; t < j; ++t) {
-                    PDDLAction actT = pddl.domain->getAction(plan.actions[t].name);
+                    PDDLAction actT = pddl.domain->getAction(plan.actions.at(t).name);
                     for (auto addT : actT.GetAdds()) {
                         vector<string> predparams;
                         for (auto p : addT.args) {
-                            predparams.push_back(actT.parameters[p]);
+                            predparams.push_back(actT.parameters.at(p));
                         }
                         olivia.push_back(make_pair(addT.predicateIndex, predparams));
                     }
@@ -199,16 +200,16 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
                 }
                 
                 if (!isSubSet) {
-                    if (candidateCount.contains(plan.actions[j].name))
-                        ++candidateCount[plan.actions[j].name];
+                    if (candidateCount.contains(plan.actions.at(j).name))
+                        ++candidateCount[plan.actions.at(j).name];
                     else
-                        candidateCount[plan.actions[j].name] = 1;
+                        candidateCount[plan.actions.at(j).name] = 1;
                 }
             }
-            if (totalCandidateCount.contains(plan.actions[j].name))
-                ++totalCandidateCount[plan.actions[j].name];
+            if (totalCandidateCount.contains(plan.actions.at(j).name))
+                ++totalCandidateCount[plan.actions.at(j).name];
             else
-                totalCandidateCount[plan.actions[j].name] = 1;
+                totalCandidateCount[plan.actions.at(j).name] = 1;
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
         // for each action j check if j is dependent on actions in any of [acts]
@@ -260,11 +261,11 @@ vector<pair<int, vector<string>>> Learner::predIntersect(PDDLInstance pddl, PDDL
             if (jp.predicateIndex != ip.predicateIndex) continue;
             bool paramsEqual = true;
             for (int i = 0; i < jp.args.size(); ++i) {
-                if (iSASAct.parameters[i] != jSASAct.parameters[i]) paramsEqual = false;
+                if (iSASAct.parameters.at(i) != jSASAct.parameters.at(i)) paramsEqual = false;
             }
             vector<string> predparams;
             for (auto p : jp.args) {
-                predparams.push_back(jSASAct.parameters[p]);
+                predparams.push_back(jSASAct.parameters.at(p));
             }
             if (paramsEqual) preds.push_back(make_pair(jp.predicateIndex, predparams));
         }
@@ -275,19 +276,19 @@ vector<pair<int, vector<string>>> Learner::predIntersect(PDDLInstance pddl, PDDL
 Macro Learner::lookupRanges(int start, int end, Macro candidate){
     Macro macroRange;
     for (int i = start; i < end; ++i){
-        macroRange.push_back(candidate[i]);
+        macroRange.push_back(candidate.at(i));
     }
     return macroRange;
 }
 
-bool Learner::checkPredicates(PDDLProblem prob, Macro acts, SASAction sAct, int flag){
+bool Learner::checkPredicates(PDDLProblem* prob, Macro acts, SASAction sAct, int flag){
     PDDLAction* actPtr;
     PDDLState state;
 
     if (flag == Init){
-        state = prob.initState;
+        state = prob->initState;
     } else {
-        state = prob.goalState;
+        state = prob->goalState;
     }
 
     for (auto act : acts){
@@ -311,19 +312,19 @@ bool Learner::checkPredicates(PDDLProblem prob, Macro acts, SASAction sAct, int 
     
     for (auto lit : literals){
         if(lit.args.size() == 1){
-            if(state.ContainsFact(lit.predicateIndex, prob.objectMap.at(sAct.parameters[0]))){
+            if(state.ContainsFact(lit.predicateIndex, prob->objectMap.at(sAct.parameters.at(0)))){
                 return true;
             }
         } else if(lit.args.size() == 2){
-            pair<unsigned int, unsigned int> binaryFact = make_pair(prob.objectMap.at(sAct.parameters[0]),
-                                                                    prob.objectMap.at(sAct.parameters[1]));
+            pair<unsigned int, unsigned int> binaryFact = make_pair(prob->objectMap.at(sAct.parameters.at(0)),
+                                                                    prob->objectMap.at(sAct.parameters.at(1)));
             if (state.ContainsFact(lit.predicateIndex, binaryFact)){
                 return true;
             }
         } else {
             vector<unsigned int> multiFact;
             for (string arg : sAct.parameters){
-                multiFact.push_back(prob.objectMap.at(arg));
+                multiFact.push_back(prob->objectMap.at(arg));
             }
             if(state.ContainsFact(lit.predicateIndex, new MultiFact(multiFact))){
                 return true;

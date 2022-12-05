@@ -7,9 +7,9 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-vector<pair<SASPlan, PDDLInstance>> PlanGenerator::GenerateSASPlans(Config config, string domainFolder) {
+vector<pair<SASPlan, PDDLInstance*>> PlanGenerator::GenerateSASPlans(Config config, string domainFolder) {
     vector<string> filePaths;
-    vector<pair<SASPlan, PDDLInstance>> plans;
+    vector<pair<SASPlan, PDDLInstance*>> plans;
     DownwardRunner runner = DownwardRunner();
     SASParser parser = SASParser();
 
@@ -43,7 +43,7 @@ vector<pair<SASPlan, PDDLInstance>> PlanGenerator::GenerateSASPlans(Config confi
             runner.RunDownward(config, domainPath, problemPath, NoTimeLimit);
 
             filePaths.erase(filePaths.begin()+attempt);
-            plans.push_back(make_pair(plan, *instance));     
+            plans.push_back(make_pair(plan, instance));     
         } else {
             attempt = rand() % filePaths.size();
         }
