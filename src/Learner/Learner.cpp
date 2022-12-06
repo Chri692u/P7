@@ -2,21 +2,58 @@
 
 using namespace std;
 
-MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance*>> plans){
+// MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance> plans){
+//     vector<vector<pair<PDDLAction, int>>> acts;
+//     MacroList macros;
+//     vector<SASPlan> sasPlans;
+//     PDDLDomain* domain = plans.at(0).second->domain;
+//     const Macro pddlActs = domain->actions;
+//     vector<pair<PDDLAction, int>> entanglements;
+
+//     for(auto o : os){
+//         ops.push_back(o.first);
+//     }
+
+//     for (auto plan : plans){
+//         AnalyzePlan(*(plan.second), plan.first);
+//     }
+
+//     for (string o: ops){
+//         for(auto act : pddlActs){
+//             if(act.name == o) {
+//                 if (flawRatio > (float) initViolations.at(o) / (float) os.at(o)){
+//                     entanglements.push_back(pair<PDDLAction, int>{act, Init});
+//                 }
+
+//                 if (flawRatio > (float) goalViolations.at(o) / (float) os.at(o)){
+//                     entanglements.push_back(pair<PDDLAction, int>{act, Goal});
+//                 }
+//             }
+//         }
+//     }
+
+//     for (auto plan : plans){
+//         sasPlans.push_back(plan.first);
+//     }
+    
+//     return descendActions(*(plans.at(0).second, entanglements, sasPlans);
+// }
+
+MacroList Learner::IteratePlans(PlanGenerator generator){
     vector<vector<pair<PDDLAction, int>>> acts;
     MacroList macros;
-    PDDLInstance* pddl = plans.at(0).second;
     vector<SASPlan> sasPlans;
-    PDDLDomain* domain = pddl->domain;
-    const Macro pddlActs = domain->actions;
+    PDDLDomain domain = generator.domains.at(0);
+    const Macro pddlActs = domain.actions;
     vector<pair<PDDLAction, int>> entanglements;
+
+    for (int i = 0; i < generator.sasplans.size(); ++i){
+        PDDLInstance haha = PDDLInstance(&(generator.domains.at(i)), &(generator.problems.at(i)));
+        AnalyzePlan(haha, generator.sasplans.at(i));
+    }
 
     for(auto o : os){
         ops.push_back(o.first);
-    }
-
-    for (auto plan : plans){
-        AnalyzePlan(plan.second, plan.first);
     }
 
     for (string o: ops){
@@ -33,26 +70,26 @@ MacroList Learner::IteratePlans(vector<pair<SASPlan, PDDLInstance*>> plans){
         }
     }
 
-    for (auto plan : plans){
-        sasPlans.push_back(plan.first);
+    for (auto plan : generator.sasplans){
+        sasPlans.push_back(plan);
     }
-    
-    return descendActions(*pddl, entanglements, sasPlans);
+    PDDLInstance haha = PDDLInstance(&(generator.domains.at(0)), &(generator.problems.at(0)));
+    return descendActions(haha, entanglements, sasPlans);
 }
 
-void Learner::AnalyzePlan(PDDLInstance* pddl, SASPlan plan){
+void Learner::AnalyzePlan(PDDLInstance &pddl, SASPlan plan){
     vector<pair<PDDLAction, int>> entanglements;
-    PDDLProblem* problem = pddl->problem;    //from the initial state from pddl
-    PDDLDomain* domain = pddl->domain;       //predicates from domain
+    PDDLProblem* problem = pddl.problem;    //from the initial state from pddl
+    PDDLDomain* domain = pddl.domain;       //predicates from domain
     const Macro pddlActs = domain->actions;
 
     double initTempRatio = 0;
     double goalTempRatio = 0;
 
     for (auto action : plan.actions) {
-            os.emplace(action.name, 0);
-            initViolations.emplace(action.name, 0);
-            goalViolations.emplace(action.name, 0);
+        os.emplace(action.name, 0);
+        initViolations.emplace(action.name, 0);
+        goalViolations.emplace(action.name, 0);
     }
 
     for (auto action : plan.actions) {
@@ -61,7 +98,7 @@ void Learner::AnalyzePlan(PDDLInstance* pddl, SASPlan plan){
 
         //check if goal state does not violate outer entanglements
         // BIG EXPLOSION ALLAH PROBLEM IS WRONG XD
-        if (checkPredicates(problem, pddlActs, action, Goal)){
+        if (checkPredicates(pddl, pddlActs, action, Goal)){
             notViolated = true;
             break;
         }
@@ -72,7 +109,7 @@ void Learner::AnalyzePlan(PDDLInstance* pddl, SASPlan plan){
         }
 
         //check if init state does not violate outer entanglements
-        if (checkPredicates(problem, pddlActs, action, Init)){
+        if (checkPredicates(pddl, pddlActs, action, Init)){
             notViolated = true;
             break;
         }
@@ -85,11 +122,11 @@ void Learner::AnalyzePlan(PDDLInstance* pddl, SASPlan plan){
     }
 }
 
-MacroList Learner::descendActions(PDDLInstance pddl, vector<pair<PDDLAction, int>> entanglements, vector<SASPlan> plans){
+MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, int>> entanglements, vector<SASPlan> plans){
     MacroList oldCandidates;
     MacroList candidates;
     for(auto ent : entanglements){
-        for (auto candidate : GetCandidates(pddl, Macro{ent.first}, plans)){
+        for (auto candidate : GetCandidates(*pddl.domain, Macro{ent.first}, plans)){
             candidates.push_back(candidate);
         }
         while (oldCandidates.size() != candidates.size()){
@@ -99,7 +136,7 @@ MacroList Learner::descendActions(PDDLInstance pddl, vector<pair<PDDLAction, int
             }
             candidates.clear();
             for(auto candidate : oldCandidates){
-                for (auto newCandidate : GetCandidates(pddl, candidate, plans)){
+                for (auto newCandidate : GetCandidates(*pddl.domain, candidate, plans)){
                     candidates.push_back(newCandidate);
                 }
             }
@@ -117,7 +154,7 @@ MacroList Learner::descendActions(PDDLInstance pddl, vector<pair<PDDLAction, int
     */
 }
 
-MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> plans){
+MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan> plans){
     /*
     let candidates = MacroList
     let realCandidates = MacroList
@@ -172,15 +209,14 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
                 if (!actIndices.contains(plan.actions.at(i).name)) continue;
                 // get intersection of positive effects between i and preconditions of j
                 vector<pair<int, vector<string>>> larry = predIntersect(
-                        pddl, 
-                        pddl.domain->getAction(plan.actions.at(i).name), plan.actions.at(i),
-                        pddl.domain->getAction(plan.actions.at(j).name), plan.actions.at(j));
+                        domain.getAction(plan.actions.at(i).name), plan.actions.at(i),
+                        domain.getAction(plan.actions.at(j).name), plan.actions.at(j));
                 // no need to continue if larry is empty
                 if (larry.size() == 0) continue;
                 // check if actions between i and j have effects which are in intersection
                 vector<pair<int, vector<string>>> olivia;
                 for (int t = i + 1; t < j; ++t) {
-                    PDDLAction actT = pddl.domain->getAction(plan.actions.at(t).name);
+                    PDDLAction actT = domain.getAction(plan.actions.at(t).name);
                     for (auto addT : actT.GetAdds()) {
                         vector<string> predparams;
                         for (auto p : addT.args) {
@@ -221,7 +257,7 @@ MacroList Learner::GetCandidates(PDDLInstance pddl, Macro acts, vector<SASPlan> 
             for (auto emilia : acts) {
                 mark.push_back(emilia);
             }
-            mark.push_back(pddl.domain->getAction(c.first));
+            mark.push_back(domain.getAction(c.first));
             candidates.push_back(mark);
         }
     }
@@ -254,7 +290,7 @@ Macro Learner::RepetitiveFilter(Macro candidate){
     return candidate;
 }
 
-vector<pair<int, vector<string>>> Learner::predIntersect(PDDLInstance pddl, PDDLAction iAct, SASAction iSASAct, PDDLAction jAct, SASAction jSASAct) {
+vector<pair<int, vector<string>>> Learner::predIntersect(PDDLAction iAct, SASAction iSASAct, PDDLAction jAct, SASAction jSASAct) {
     vector<pair<int, vector<string>>> preds;
     for (auto ip : iAct.GetAdds()) {
         for (auto jp : jAct.preconditions) {
@@ -281,56 +317,55 @@ Macro Learner::lookupRanges(int start, int end, Macro candidate){
     return macroRange;
 }
 
-bool Learner::checkPredicates(PDDLProblem* prob, Macro acts, SASAction sAct, int flag){
-    PDDLAction* actPtr;
+bool Learner::checkPredicates(PDDLInstance &pddl, Macro acts, SASAction sAct, int flag){
     PDDLState state;
 
     if (flag == Init){
-        state = prob->initState;
+        state = pddl.problem->initState;
     } else {
-        state = prob->goalState;
+        state = pddl.problem->goalState;
     }
 
     for (auto act : acts){
         if(act.name == sAct.name){
-            actPtr = &act;
+            vector<PDDLLiteral> literals;
+
+            if (flag == Init){
+                for (PDDLLiteral pre :  act.preconditions){
+                    literals.push_back(pre);
+                }
+            } else {
+                for(PDDLLiteral eff : act.GetAdds()){
+                    literals.push_back(eff);
+                }
+            }
+            
+            for (auto lit : literals){
+                if(lit.args.size() == 1){
+                    if(state.ContainsFact(lit.predicateIndex, pddl.problem->objectMap.at(sAct.parameters.at(0)))){
+                        return true;
+                    }
+                } else if(lit.args.size() == 2){
+                    pair<unsigned int, unsigned int> binaryFact = make_pair(pddl.problem->objectMap.at(sAct.parameters.at(0)),
+                                                                            pddl.problem->objectMap.at(sAct.parameters.at(1)));
+                    if (state.ContainsFact(lit.predicateIndex, binaryFact)){
+                        return true;
+                    }
+                } else {
+                    vector<unsigned int> multiFact;
+                    for (string arg : sAct.parameters){
+                        multiFact.push_back(pddl.problem->objectMap.at(arg));
+                    }
+                    if(state.ContainsFact(lit.predicateIndex, new MultiFact(multiFact))){
+                        return true;
+                    }
+                }
+            }
+            // break for loop because sAct is checked
             break;
         }
     }
-    PDDLAction pddlAction = *actPtr;
-    vector<PDDLLiteral> literals;
-
-    if (flag == Init){
-        for (PDDLLiteral pre :  pddlAction.preconditions){
-            literals.push_back(pre);
-        }
-    } else {
-        for(PDDLLiteral eff : pddlAction.GetAdds()){
-            literals.push_back(eff);
-        }
-    }
     
-    for (auto lit : literals){
-        if(lit.args.size() == 1){
-            if(state.ContainsFact(lit.predicateIndex, prob->objectMap.at(sAct.parameters.at(0)))){
-                return true;
-            }
-        } else if(lit.args.size() == 2){
-            pair<unsigned int, unsigned int> binaryFact = make_pair(prob->objectMap.at(sAct.parameters.at(0)),
-                                                                    prob->objectMap.at(sAct.parameters.at(1)));
-            if (state.ContainsFact(lit.predicateIndex, binaryFact)){
-                return true;
-            }
-        } else {
-            vector<unsigned int> multiFact;
-            for (string arg : sAct.parameters){
-                multiFact.push_back(prob->objectMap.at(arg));
-            }
-            if(state.ContainsFact(lit.predicateIndex, new MultiFact(multiFact))){
-                return true;
-            }
-        }
-    }
     return false;
 }
 

@@ -1,7 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "../../src/Learner/Learner.hh"
-#include "../../src/PlanGenerator/PlanGenerator.hh"
 
 const std::string TAG = "Learner ";
 
@@ -14,6 +13,8 @@ TEST_CASE(TAG + "Domain = gripper"){
     std::string domainPath = "gripper";
 	config.ParseConfigFile(fileName); 
     
-    learner.IteratePlans(gen.GenerateSASPlans(config, domainPath));
+    // set up learner
+    gen.GenerateSASPlans(config, domainPath);
+    learner.IteratePlans(gen);
     REQUIRE(1==0);
 }

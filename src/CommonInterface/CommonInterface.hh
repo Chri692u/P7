@@ -56,7 +56,7 @@ private:
 	InterfaceStep<SASPlan> ParseSASPlan();
 	InterfaceStep<SASPlan> RebuildSASPlan(SASPlan* reformulatedSASPlan, BaseReformulator* reformulator, PDDLInstance* instance);
 	InterfaceStep<void> GenerateNewSASPlan(SASPlan outputPlan);
-	InterfaceStep<std::vector<std::pair<SASPlan, PDDLInstance*>>> GenerateLearningPlans(std::string path);
+	InterfaceStep<void> GenerateLearningPlans(std::string path);
 
 	RunReport* Report;
 	Config config;
