@@ -12,7 +12,7 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFolder) {
     DownwardRunner runner = DownwardRunner();
     SASParser parser = SASParser();
 
-    int problemAmount = 1;
+    int problemAmount = 5;
     int NoTimeLimit = -1;
 
     srand(time(NULL));

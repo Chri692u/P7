@@ -151,6 +151,7 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
     */
 }
 
+// fix this 🥺
 MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan> plans){
     /*
     let candidates = MacroList
@@ -250,7 +251,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
         // if true add chain candidates
     }
     for (auto c : candidateCount) {
-        if ((float)c.second / (float)totalCandidateCount[c.first] < macroFlawRatio) {
+        if (((float) (totalCandidateCount[c.first] - c.second)) / ((float)totalCandidateCount[c.first]) < macroFlawRatio) {
             Macro mark;
             for (auto emilia : acts) {
                 mark.push_back(emilia);
@@ -259,7 +260,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
             candidates.push_back(mark);
         }
     }
-    return candidates;
+    return candidates.size() == 0 ? vector<Macro>{acts} : candidates;
 }
 
 MacroList Learner::FilterCandidates(MacroList candidates){
@@ -295,7 +296,7 @@ vector<pair<int, vector<string>>> Learner::predIntersect(PDDLAction iAct, SASAct
             if (jp.predicateIndex != ip.predicateIndex) continue;
             bool paramsEqual = true;
             for (int i = 0; i < jp.args.size(); ++i) {
-                if (iSASAct.parameters.at(i) != jSASAct.parameters.at(i)) paramsEqual = false;
+                if (iSASAct.parameters.at(ip.args.at(i)) != jSASAct.parameters.at(jp.args.at(i))) paramsEqual = false;
             }
             vector<string> predparams;
             for (auto p : jp.args) {
