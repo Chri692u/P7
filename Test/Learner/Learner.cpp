@@ -15,6 +15,6 @@ TEST_CASE(TAG + "Domain = gripper"){
     
     // set up learner
     gen.GenerateSASPlans(config, domainPath);
-    learner.IteratePlans(gen);
+    std::vector<std::vector<PDDLAction>> ml = learner.IteratePlans(gen);
     REQUIRE(1==0);
 }

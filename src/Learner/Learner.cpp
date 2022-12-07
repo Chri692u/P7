@@ -47,13 +47,19 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
     const Macro pddlActs = domain.actions;
     vector<pair<PDDLAction, int>> entanglements;
 
-    for (int i = 0; i < generator.sasplans.size(); ++i){
-        PDDLInstance haha = PDDLInstance(&(generator.domains.at(i)), &(generator.problems.at(i)));
-        AnalyzePlan(haha, generator.sasplans.at(i));
+    for (auto act : pddlActs) {
+        os.emplace(act.name, 0);
+        initViolations.emplace(act.name, 0);
+        goalViolations.emplace(act.name, 0);
     }
 
     for(auto o : os){
         ops.push_back(o.first);
+    }
+
+    for (int i = 0; i < generator.sasplans.size(); ++i){
+        PDDLInstance haha = PDDLInstance(&(generator.domains.at(i)), &(generator.problems.at(i)));
+        AnalyzePlan(haha, generator.sasplans.at(i));
     }
 
     for (string o: ops){
@@ -87,12 +93,6 @@ void Learner::AnalyzePlan(PDDLInstance &pddl, SASPlan plan){
     double goalTempRatio = 0;
 
     for (auto action : plan.actions) {
-        os.emplace(action.name, 0);
-        initViolations.emplace(action.name, 0);
-        goalViolations.emplace(action.name, 0);
-    }
-
-    for (auto action : plan.actions) {
         ++os[action.name]; 
         bool notViolated = false;
 
@@ -100,23 +100,20 @@ void Learner::AnalyzePlan(PDDLInstance &pddl, SASPlan plan){
         // BIG EXPLOSION ALLAH PROBLEM IS WRONG XD
         if (checkPredicates(pddl, pddlActs, action, Goal)){
             notViolated = true;
-            break;
         }
 
         if(!notViolated){
             ++goalViolations[action.name];
-            notViolated = false;
         }
 
         //check if init state does not violate outer entanglements
+        notViolated = false;
         if (checkPredicates(pddl, pddlActs, action, Init)){
             notViolated = true;
-            break;
         }
 
         if(!notViolated){
             ++initViolations[action.name];
-            notViolated = false;
         }
         
     }
@@ -193,8 +190,8 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
             for (auto act : actIndices){
                 macroIndices[act.first] = 0;
                 mateo[act.first] = 0;
-                for (int k = 0; plan.actions.size() > k; ++k){
-                    if (plan.actions.at(k).name == act.first){
+                for (int k = 0; j > k; ++k){
+                    if (plan.actions.at(k).name == act.first && act.second.size() > macroIndices[act.first]){
                         ++macroIndices[act.first];
                     }
                 }
@@ -204,7 +201,8 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
                     }
                 }
             }
-            if(mateo != macroIndices) continue;
+            if(mateo != macroIndices) 
+                continue;
             for (int i = j-1; i >= 0; --i) {
                 if (!actIndices.contains(plan.actions.at(i).name)) continue;
                 // get intersection of positive effects between i and preconditions of j
