@@ -204,6 +204,11 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
             }
             if(mateo != macroIndices) 
                 continue;
+            if (totalCandidateCount.contains(plan.actions.at(j).name))
+                ++totalCandidateCount[plan.actions.at(j).name];
+            else
+                totalCandidateCount[plan.actions.at(j).name] = 1; 
+
             for (int i = j-1; i >= 0; --i) {
                 if (!actIndices.contains(plan.actions.at(i).name)) continue;
                 // get intersection of positive effects between i and preconditions of j
@@ -239,11 +244,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
                         ++candidateCount[plan.actions.at(j).name];
                     else
                         candidateCount[plan.actions.at(j).name] = 1;
-                }
-                if (totalCandidateCount.contains(plan.actions.at(j).name))
-                    ++totalCandidateCount[plan.actions.at(j).name];
-                else
-                    totalCandidateCount[plan.actions.at(j).name] = 1;           
+                }          
             }
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
