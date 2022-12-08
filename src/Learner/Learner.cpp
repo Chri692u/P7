@@ -237,7 +237,7 @@ bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac
             }
         }
         if (!joel) break;
-        // get intersection of positive effects between i and preconditions of j
+        // get intersection of positive effects between macro and preconditions of j
         bool charles = false;
         for (int m = 1; m <= k+1; ++m) {
             vector<pair<int, vector<string>>> larry = predIntersect(
