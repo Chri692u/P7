@@ -75,7 +75,7 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
             }
         }
     }
-
+    
     for (auto plan : generator.sasplans){
         sasPlans.push_back(plan);
     }
@@ -236,41 +236,45 @@ bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac
                 joel = true;
             }
         }
-        if (!joel) continue;
+        if (!joel) break;
         // get intersection of positive effects between i and preconditions of j
-        vector<pair<int, vector<string>>> larry = predIntersect(
-                domain.getAction(plan.actions.at(i).name), plan.actions.at(i),
+        bool charles = false;
+        for (int m = 1; m <= k+1; ++m) {
+            vector<pair<int, vector<string>>> larry = predIntersect(
+                domain.getAction(plan.actions.at(j-m).name), plan.actions.at(j-m),
                 domain.getAction(plan.actions.at(j).name), plan.actions.at(j));
-        // no need to continue if larry is empty
-        if (larry.size() == 0) continue;
+            if (larry.size() != 0) {
+                charles = true;
+                break;
+            }
+        }
+        // no need to continue if none of the macro actions share predicates
+        if (!charles) break;
         // check if actions between i and j have effects which are in intersection
-        vector<pair<int, vector<string>>> olivia;
-        for (int t = i + 1; t < j; ++t) {
-            PDDLAction actT = domain.getAction(plan.actions.at(t).name);
-            for (auto addT : actT.GetAdds()) {
-                vector<string> predparams;
-                for (auto p : addT.args) {
-                    predparams.push_back(actT.parameters.at(p));
-                }
-                olivia.push_back(make_pair(addT.predicateIndex, predparams));
-            }
-        }
-        // check if intersection larry isnt a subset of olivia
-        bool isSubSet = false;
-            for (auto iPair : larry) {
-            for (auto tPair : olivia) {
-                if (iPair.first != tPair.first) continue;
-                if (iPair.second != tPair.second) continue;
-                isSubSet = true;
-            }
-        }
-        
-        if (!isSubSet) {
-            // count down k
-            --k;
-            // set j to i, this makes it so all actions in macro are checked
-            j = i;
-        }          
+        // vector<pair<int, vector<string>>> olivia;
+        // for (int t = i + 1; t < j; ++t) {
+        //     PDDLAction actT = domain.getAction(plan.actions.at(t).name);
+        //     for (auto addT : actT.GetAdds()) {
+        //         vector<string> predparams;
+        //         for (auto p : addT.args) {
+        //             predparams.push_back(actT.parameters.at(p));
+        //         }
+        //         olivia.push_back(make_pair(addT.predicateIndex, predparams));
+        //     }
+        // }
+        // // check if intersection larry isnt a subset of olivia
+        // bool isSubSet = false;
+        //     for (auto iPair : larry) {
+        //     for (auto tPair : olivia) {
+        //         if (iPair.first != tPair.first) continue;
+        //         if (iPair.second != tPair.second) continue;
+        //         isSubSet = true;
+        //     }
+        // }
+        // count down k
+        --k;
+        // set j to i, this makes it so all actions in macro are checked
+        j = i;    
     }
 
     return k == EXIT_SUCCESS-1;
