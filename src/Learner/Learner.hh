@@ -27,12 +27,13 @@ private:
     MacroList FilterCandidates(MacroList candidates);
     Macro RepetitiveFilter(Macro candidate);
     Macro lookupRanges(int start, int end, Macro candidate);
+    bool checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac);
 public:
     enum EntangType {Init, Goal};
 
     // todo: put in settings
-    double flawRatio = .3;
-    double macroFlawRatio = .01;
+    double flawRatio = 1;
+    double macroFlawRatio = .9;
 
     //MacroList IteratePlans(std::vector<std::pair<SASPlan, PDDLInstance*>> plans);
     MacroList IteratePlans(PlanGenerator gen);

@@ -65,11 +65,11 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
     for (string o: ops){
         for(auto act : pddlActs){
             if(act.name == o) {
-                if (flawRatio > (float) initViolations.at(o) / (float) os.at(o)){
+                if (flawRatio <= (float) initViolations.at(o) / (float) os.at(o)){
                     entanglements.push_back(pair<PDDLAction, int>{act, Init});
                 }
 
-                if (flawRatio > (float) goalViolations.at(o) / (float) os.at(o)){
+                if (flawRatio <= (float) goalViolations.at(o) / (float) os.at(o)){
                     entanglements.push_back(pair<PDDLAction, int>{act, Goal});
                 }
             }
@@ -153,23 +153,6 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
 
 // fix this 🥺
 MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan> plans){
-    /*
-    let candidates = MacroList
-    let realCandidates = MacroList
-    let actSequence = "";
-
-    for(auto plan in plans){
-        find indices for act i planen
-        find actions der kommer efter acts sekvensen (entanglement)
-        hvis actions er dependent(i < j, (e+(ai) ∩ p(aj )) 6 = ∅ and (e+(ai) ∩ p(aj )) (not ⊆) ⋃j−1 t=i+1 e+(at).) så: 
-            candidates.push_back(actions)
-    }
-    for(auto candidate : candidates){
-        hvis den er over macroFlaw, så er det en candidate og vi tilføjer den til listen
-        realCandidates.push_back(candidate);
-    }
-    candidate.size() == 0 ? return vector<vector<PDDLActions>>{acts} : return realCandidates
-    */
     MacroList candidates;
     
     unordered_map<string, int> candidateCount;
@@ -202,49 +185,27 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
                     }
                 }
             }
-            if(mateo != macroIndices) 
+
+            bool skip = false;
+            for (auto act : macroIndices) {
+                if (mateo[act.first] < act.second)
+                    skip = true;
+            }
+
+            if(skip) 
                 continue;
+
+            // add candidate to totalcandidatecounts
             if (totalCandidateCount.contains(plan.actions.at(j).name))
                 ++totalCandidateCount[plan.actions.at(j).name];
             else
-                totalCandidateCount[plan.actions.at(j).name] = 1; 
+                totalCandidateCount[plan.actions.at(j).name] = 1;
 
-            for (int i = j-1; i >= 0; --i) {
-                if (!actIndices.contains(plan.actions.at(i).name)) continue;
-                // get intersection of positive effects between i and preconditions of j
-                vector<pair<int, vector<string>>> larry = predIntersect(
-                        domain.getAction(plan.actions.at(i).name), plan.actions.at(i),
-                        domain.getAction(plan.actions.at(j).name), plan.actions.at(j));
-                // no need to continue if larry is empty
-                if (larry.size() == 0) continue;
-                // check if actions between i and j have effects which are in intersection
-                vector<pair<int, vector<string>>> olivia;
-                for (int t = i + 1; t < j; ++t) {
-                    PDDLAction actT = domain.getAction(plan.actions.at(t).name);
-                    for (auto addT : actT.GetAdds()) {
-                        vector<string> predparams;
-                        for (auto p : addT.args) {
-                            predparams.push_back(actT.parameters.at(p));
-                        }
-                        olivia.push_back(make_pair(addT.predicateIndex, predparams));
-                    }
-                }
-                // check if intersection larry isnt a subset of olivia
-                bool isSubSet = false;
-                 for (auto iPair : larry) {
-                    for (auto tPair : olivia) {
-                        if (iPair.first != tPair.first) continue;
-                        if (iPair.second != tPair.second) continue;
-                        isSubSet = true;
-                    }
-                }
-                
-                if (!isSubSet) {
-                    if (candidateCount.contains(plan.actions.at(j).name))
-                        ++candidateCount[plan.actions.at(j).name];
-                    else
-                        candidateCount[plan.actions.at(j).name] = 1;
-                }          
+            if (checkDependent(domain, plan, j, acts)) {
+                if (candidateCount.contains(plan.actions.at(j).name))
+                    ++candidateCount[plan.actions.at(j).name];
+                else
+                    candidateCount[plan.actions.at(j).name] = 1;
             }
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
@@ -252,7 +213,8 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
         // if true add chain candidates
     }
     for (auto c : candidateCount) {
-        if (totalCandidateCount.size() != 0 && ((float) initViolations[c.first] / (float) totalCandidateCount[c.first]) <= macroFlawRatio) {
+        float r = 1 - ((float) candidateCount[c.first]) / ((float) totalCandidateCount[c.first]);
+        if (r <= macroFlawRatio) {
             Macro mark;
             for (auto emilia : acts) {
                 mark.push_back(emilia);
@@ -264,6 +226,57 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
     return candidates.size() == 0 ? vector<Macro>{acts} : candidates;
 }
 
+bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac) {
+    int k = mac.size()-1;
+    for (int i = j-1; i >= 0 && k >= 0; --i) {
+        //if (!actIndices.contains(plan.actions.at(i).name)) continue;
+        bool joel = false; // if i action is in macro
+        for (auto cheese : mac) { // cheese is an action in mac
+            if (plan.actions.at(i).name == cheese.name && mac.at(k).name == cheese.name) {
+                joel = true;
+            }
+        }
+        if (!joel) continue;
+        // get intersection of positive effects between i and preconditions of j
+        vector<pair<int, vector<string>>> larry = predIntersect(
+                domain.getAction(plan.actions.at(i).name), plan.actions.at(i),
+                domain.getAction(plan.actions.at(j).name), plan.actions.at(j));
+        // no need to continue if larry is empty
+        if (larry.size() == 0) continue;
+        // check if actions between i and j have effects which are in intersection
+        vector<pair<int, vector<string>>> olivia;
+        for (int t = i + 1; t < j; ++t) {
+            PDDLAction actT = domain.getAction(plan.actions.at(t).name);
+            for (auto addT : actT.GetAdds()) {
+                vector<string> predparams;
+                for (auto p : addT.args) {
+                    predparams.push_back(actT.parameters.at(p));
+                }
+                olivia.push_back(make_pair(addT.predicateIndex, predparams));
+            }
+        }
+        // check if intersection larry isnt a subset of olivia
+        bool isSubSet = false;
+            for (auto iPair : larry) {
+            for (auto tPair : olivia) {
+                if (iPair.first != tPair.first) continue;
+                if (iPair.second != tPair.second) continue;
+                isSubSet = true;
+            }
+        }
+        
+        if (!isSubSet) {
+            // count down k
+            --k;
+            // set j to i, this makes it so all actions in macro are checked
+            j = i;
+        }          
+    }
+
+    return k == EXIT_SUCCESS-1;
+}
+
+// this never called
 MacroList Learner::FilterCandidates(MacroList candidates){
     MacroList returnList;
     for(Macro candidate : candidates){
@@ -273,12 +286,13 @@ MacroList Learner::FilterCandidates(MacroList candidates){
     return returnList;
 }
 
+// this dont work
 Macro Learner::RepetitiveFilter(Macro candidate){
     if (candidate.size() % 2 != 0) return candidate;
-    for(int sweep = 1; candidate.size() / 2; ++sweep){
+    for(int sweep = 1; sweep < candidate.size() / 2; ++sweep){
         Macro range = lookupRanges(0, sweep, candidate);
         for(int i = sweep-1; candidate.size() > i; i+=sweep){
-            Macro cmpr = lookupRanges(i, i+sweep, candidate);
+            Macro cmpr = lookupRanges(i, i+sweep-1, candidate);
             if(range != cmpr){
                 break;
             }
