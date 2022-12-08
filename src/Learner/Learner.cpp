@@ -240,18 +240,18 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
                     else
                         candidateCount[plan.actions.at(j).name] = 1;
                 }
+                if (totalCandidateCount.contains(plan.actions.at(j).name))
+                    ++totalCandidateCount[plan.actions.at(j).name];
+                else
+                    totalCandidateCount[plan.actions.at(j).name] = 1;           
             }
-            if (totalCandidateCount.contains(plan.actions.at(j).name))
-                ++totalCandidateCount[plan.actions.at(j).name];
-            else
-                totalCandidateCount[plan.actions.at(j).name] = 1;
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
         // for each action j check if j is dependent on actions in any of [acts]
         // if true add chain candidates
     }
     for (auto c : candidateCount) {
-        if (((float) (totalCandidateCount[c.first] - c.second)) / ((float)totalCandidateCount[c.first]) < macroFlawRatio) {
+        if (totalCandidateCount.size() != 0 && ((float) initViolations[c.first] / (float) totalCandidateCount[c.first]) <= macroFlawRatio) {
             Macro mark;
             for (auto emilia : acts) {
                 mark.push_back(emilia);

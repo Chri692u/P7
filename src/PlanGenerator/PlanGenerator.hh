@@ -1,7 +1,7 @@
 #ifndef PLANGENERATOR_HH
 #define PlANGENERATOR_HH
 
-#include "../Config/config.hh"
+#include "../Config/Config.hh"
 #include "../DownwardRunner/DownwardRunner.hh"
 #include "../SASParser/SASParser.hh"
 #include "../PDDLParser/pddldriver.hh"
