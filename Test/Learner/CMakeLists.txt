@@ -11,4 +11,5 @@ target_link_libraries(Tests-Learner
         PDDLParser)
 
 file(COPY Test/Learner/gripper DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Test/Learner/miconic DESTINATION ${CMAKE_BINARY_DIR})
 catch_discover_tests(Tests-Learner)

@@ -33,7 +33,7 @@ public:
 
     // todo: put in settings
     double flawRatio = .3;
-    double macroFlawRatio = 0.5;
+    double macroFlawRatio = 0.8;
 
     //MacroList IteratePlans(std::vector<std::pair<SASPlan, PDDLInstance*>> plans);
     MacroList IteratePlans(PlanGenerator gen);

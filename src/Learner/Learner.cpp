@@ -138,8 +138,7 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
                 }
             }
         }
-    }
-    return candidates;
+    }    return candidates;
     /*
     for hver entanglement:
         går vi planer igennem indtil: Intermediate flawratio > macroFlaw (konstant)
