@@ -15,27 +15,30 @@ vector<EntanglementOccurance> EntanglementEvaluator::EvaluateAndSanitizeCandidat
 	// Sanitize candidates
 	RemoveMinimumQuality(&candidates);
 
-	candidates = CandidateFilter(candidates);
-
 	_RemovedCandidates = preCount - candidates.size();
 
 	vector<EntanglementOccurance> sanitizedCandidates = SortCandidates(&candidates);
-	if (sanitizedCandidates.size() > Data.MaxCandidates) {
-		sanitizedCandidates.erase(sanitizedCandidates.begin() + Data.MaxCandidates, sanitizedCandidates.end());
+
+	vector<EntanglementOccurance> filteredCandidates = CandidateFilter(sanitizedCandidates);
+
+	if (filteredCandidates.size() > Data.MaxCandidates) {
+		filteredCandidates.erase(filteredCandidates.begin() + Data.MaxCandidates, filteredCandidates.end());
 	}
 
-	return sanitizedCandidates;
+	return filteredCandidates;
 }
 
-vector<unordered_map<size_t, EntanglementOccurance>> EntanglementEvaluator::CandidateFilter(unordered_map<size_t, EntanglementOccurance> &candidates){
-	vector<unordered_map<size_t, EntanglementOccurance>> realCandidates;
+vector<EntanglementOccurance> EntanglementEvaluator::CandidateFilter(vector<EntanglementOccurance> &candidates){
+	vector<EntanglementOccurance> realCandidates;
 
 	for(auto cand : candidates){
 		for (auto macro : macros){
-			if (cand.second.Chain.size() != macro.size()) continue;
+			if (cand.Chain.size() != macro.size()) continue;
+			bool kasper = false;
 			for(int i = 0; macro.size() > i; ++i){
-				if(macro.at(i).name != cand.second.Chain.at(i)->action->name){
+				if(macro.at(i).name != cand.Chain.at(i)->action->name){
 					kasper = true;
+					break;
 				}
 			}		
 			if(!kasper) {
@@ -43,6 +46,8 @@ vector<unordered_map<size_t, EntanglementOccurance>> EntanglementEvaluator::Cand
 			}
 		}
 	}
+
+	return realCandidates;
 }
 
 void EntanglementEvaluator::SetModifiersIfNotSet() {

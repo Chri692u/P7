@@ -15,7 +15,7 @@ public:
 
 	}
 
-	virtual PDDLInstance ReformulatePDDL(PDDLInstance* instance) = 0;
+	virtual PDDLInstance ReformulatePDDL(PDDLInstance* instance, std::vector<std::vector<PDDLAction>> &macs) = 0;
 	virtual SASPlan RebuildSASPlan(PDDLInstance *instance, SASPlan* reformulatedSAS) = 0;
 protected:
 	Config* Configs;

@@ -7,13 +7,15 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-void PlanGenerator::GenerateSASPlans(Config config, string domainFolder) {
+void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
     vector<string> filePaths;
     DownwardRunner runner = DownwardRunner();
     SASParser parser = SASParser();
 
     int problemAmount = 5;
     int NoTimeLimit = -1;
+
+    string domainFolder = domainFile.substr(0, domainFile.find_last_of("\\/"));
 
     srand(time(NULL));
     fs::path relativePath = fs::current_path();
@@ -29,8 +31,9 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFolder) {
         while (filePaths[attempt].substr(filePaths[attempt].find_last_of("/\\") + 1) == "domain.pddl"){
             attempt = rand() % filePaths.size();
         }
+        cout << "hej haj" << endl;
         PDDLDriver* driver = new PDDLDriver();
-        fs::path domainPath = relativePath / domainFolder / "domain.pddl";
+        fs::path domainPath = relativePath / domainFile;
         fs::path problemPath = relativePath / domainFolder / filePaths[attempt];
         
         driver->parse(domainPath);

@@ -9,7 +9,7 @@ TEST_CASE(TAG + "Domain = gripper"){
     Learner learner;
 
 	std::filesystem::path fileName = std::filesystem::path("baseSettings.ini");
-    std::string domainPath = "miconic";
+    std::string domainPath = "gripper/domain.pddl";
 	config.ParseConfigFile(fileName); 
     
     // set up learner

@@ -11,8 +11,8 @@
 #include <map>
 #include <ranges>
 
-typedef std::vector<PDDLAction> Macro;
-typedef std::vector<Macro> MacroList;
+typedef std::vector<PDDLAction> MacroT;
+typedef std::vector<MacroT> MacroList;
 
 class Learner {
 private:
@@ -21,13 +21,13 @@ private:
     std::map<std::string, int> initViolations;
     std::vector<std::string> ops;
     std::vector<std::pair<int, std::vector<std::string>>> predIntersect(PDDLAction iAct, SASAction iSASAct, PDDLAction jAct, SASAction jSASAct);
-    bool checkPredicates(PDDLInstance &pddl, Macro acts, SASAction sAct, int flag);
-    std::vector<Macro> descendActions(PDDLInstance &pddl, std::vector<std::pair<PDDLAction, int>> entanglements, std::vector<SASPlan> plans);
-    std::vector<Macro> GetCandidates(PDDLDomain &domain, Macro acts, std::vector<SASPlan> plans);
+    bool checkPredicates(PDDLInstance &pddl, MacroT acts, SASAction sAct, int flag);
+    MacroList descendActions(PDDLInstance &pddl, std::vector<std::pair<PDDLAction, int>> entanglements, std::vector<SASPlan> plans);
+    MacroList GetCandidates(PDDLDomain &domain, MacroT acts, std::vector<SASPlan> plans);
     MacroList FilterCandidates(MacroList candidates);
-    Macro RepetitiveFilter(Macro candidate);
-    Macro lookupRanges(int start, int end, Macro candidate);
-    bool checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac);
+    MacroT RepetitiveFilter(MacroT candidate);
+    MacroT lookupRanges(int start, int end, MacroT candidate);
+    bool checkDependent(PDDLDomain &domain, SASPlan &plan, int j, MacroT mac);
 public:
     enum EntangType {Init, Goal};
 

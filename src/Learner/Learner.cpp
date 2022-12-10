@@ -44,7 +44,7 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
     MacroList macros;
     vector<SASPlan> sasPlans;
     PDDLDomain domain = generator.domains.at(0);
-    const Macro pddlActs = domain.actions;
+    const MacroT pddlActs = domain.actions;
     vector<pair<PDDLAction, int>> entanglements;
 
     for (auto act : pddlActs) {
@@ -90,7 +90,7 @@ void Learner::AnalyzePlan(PDDLInstance &pddl, SASPlan plan){
     vector<pair<PDDLAction, int>> entanglements;
     PDDLProblem* problem = pddl.problem;    //from the initial state from pddl
     PDDLDomain* domain = pddl.domain;       //predicates from domain
-    const Macro pddlActs = domain->actions;
+    const MacroT pddlActs = domain->actions;
 
     double initTempRatio = 0;
     double goalTempRatio = 0;
@@ -126,7 +126,7 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
     MacroList oldCandidates;
     MacroList candidates;
     for(auto ent : entanglements){
-        for (auto candidate : GetCandidates(*pddl.domain, Macro{ent.first}, plans)){
+        for (auto candidate : GetCandidates(*pddl.domain, MacroT{ent.first}, plans)){
             candidates.push_back(candidate);
         }
         while (oldCandidates.size() != candidates.size()){
@@ -141,7 +141,14 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
                 }
             }
         }
-    }    return candidates;
+    }    
+    // remove 1 size candidates
+    MacroList realCandidates;
+    for (auto cand : candidates) {
+        if (cand.size() > 1)
+            realCandidates.push_back(cand);
+    }
+    return realCandidates;
     /*
     for hver entanglement:
         går vi planer igennem indtil: Intermediate flawratio > macroFlaw (konstant)
@@ -154,7 +161,7 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
 }
 
 // fix this 🥺
-MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan> plans){
+MacroList Learner::GetCandidates(PDDLDomain &domain, MacroT acts, vector<SASPlan> plans){
     MacroList candidates;
     
     unordered_map<string, int> candidateCount;
@@ -218,7 +225,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
     for (auto c : candidateCount) {
         double r = 1 - ((double) candidateCount[c.first]) / ((double) totalCandidateCount[c.first]);
         if (r <= macroFlawRatio) {
-            Macro mark;
+            MacroT mark;
             for (auto emilia : acts) {
                 mark.push_back(emilia);
             }
@@ -226,10 +233,10 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
             candidates.push_back(mark);
         }
     }
-    return candidates.size() == 0 ? vector<Macro>{acts} : candidates;
+    return candidates.size() == 0 ? MacroList{acts} : candidates;
 }
 
-bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac) {
+bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, MacroT mac) {
     int k = mac.size()-1;
     for (int i = j-1; i >= 0 && k >= 0; --i) {
         //if (!actIndices.contains(plan.actions.at(i).name)) continue;
@@ -286,7 +293,7 @@ bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, Macro mac
 // this never called
 MacroList Learner::FilterCandidates(MacroList candidates){
     MacroList returnList;
-    for(Macro candidate : candidates){
+    for(MacroT candidate : candidates){
         returnList.push_back(RepetitiveFilter(candidate));
     }
     /*Check uninformative*/
@@ -294,12 +301,12 @@ MacroList Learner::FilterCandidates(MacroList candidates){
 }
 
 // this dont work
-Macro Learner::RepetitiveFilter(Macro candidate){
+MacroT Learner::RepetitiveFilter(MacroT candidate){
     if (candidate.size() % 2 != 0) return candidate;
     for(int sweep = 1; sweep < candidate.size() / 2; ++sweep){
-        Macro range = lookupRanges(0, sweep, candidate);
+        MacroT range = lookupRanges(0, sweep, candidate);
         for(int i = sweep-1; candidate.size() > i; i+=sweep){
-            Macro cmpr = lookupRanges(i, i+sweep-1, candidate);
+            MacroT cmpr = lookupRanges(i, i+sweep-1, candidate);
             if(range != cmpr){
                 break;
             }
@@ -330,15 +337,15 @@ vector<pair<int, vector<string>>> Learner::predIntersect(PDDLAction iAct, SASAct
     return preds;
 }
 
-Macro Learner::lookupRanges(int start, int end, Macro candidate){
-    Macro macroRange;
+MacroT Learner::lookupRanges(int start, int end, MacroT candidate){
+    MacroT macroRange;
     for (int i = start; i < end; ++i){
         macroRange.push_back(candidate.at(i));
     }
     return macroRange;
 }
 
-bool Learner::checkPredicates(PDDLInstance &pddl, Macro acts, SASAction sAct, int flag){
+bool Learner::checkPredicates(PDDLInstance &pddl, MacroT acts, SASAction sAct, int flag){
     PDDLState state;
 
     if (flag == Init){
