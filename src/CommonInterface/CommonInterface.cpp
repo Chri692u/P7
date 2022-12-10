@@ -204,6 +204,7 @@ InterfaceStep<void> CommonInterface::LearnPlans(){
 }
 */
 
+
 enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 
 	auto getReformulatorStep = GetReformulator(reformulatorIndex);

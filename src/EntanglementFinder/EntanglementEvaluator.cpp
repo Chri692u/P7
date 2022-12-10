@@ -15,13 +15,34 @@ vector<EntanglementOccurance> EntanglementEvaluator::EvaluateAndSanitizeCandidat
 	// Sanitize candidates
 	RemoveMinimumQuality(&candidates);
 
+	candidates = CandidateFilter(candidates);
+
 	_RemovedCandidates = preCount - candidates.size();
 
 	vector<EntanglementOccurance> sanitizedCandidates = SortCandidates(&candidates);
 	if (sanitizedCandidates.size() > Data.MaxCandidates) {
 		sanitizedCandidates.erase(sanitizedCandidates.begin() + Data.MaxCandidates, sanitizedCandidates.end());
 	}
+
 	return sanitizedCandidates;
+}
+
+vector<unordered_map<size_t, EntanglementOccurance>> EntanglementEvaluator::CandidateFilter(unordered_map<size_t, EntanglementOccurance> &candidates){
+	vector<unordered_map<size_t, EntanglementOccurance>> realCandidates;
+
+	for(auto cand : candidates){
+		for (auto macro : macros){
+			if (cand.second.Chain.size() != macro.size()) continue;
+			for(int i = 0; macro.size() > i; ++i){
+				if(macro.at(i).name != cand.second.Chain.at(i)->action->name){
+					kasper = true;
+				}
+			}		
+			if(!kasper) {
+				realCandidates.push_back(cand);
+			}
+		}
+	}
 }
 
 void EntanglementEvaluator::SetModifiersIfNotSet() {

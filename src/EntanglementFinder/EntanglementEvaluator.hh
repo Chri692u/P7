@@ -20,6 +20,7 @@ public:
 		int MaxCandidates = 1;
 	};
 
+	std::vector<std::vector<PDDLAction>> macros;
 	RunData Data;
 
 	unsigned int RemovedCandidates() const { return _RemovedCandidates; }
@@ -57,6 +58,8 @@ private:
 	/// Sorts the candidates into a more usefull vector instead.
 	/// </summary>
 	std::vector<EntanglementOccurance> SortCandidates(std::unordered_map<size_t, EntanglementOccurance>* candidates);
+	// Filter fake candidates away
+	std::vector<unordered_map<size_t, EntanglementOccurance>> EntanglementEvaluator::CandidateFilter(unordered_map<size_t, EntanglementOccurance> &candidates);
 };
 
 #endif
