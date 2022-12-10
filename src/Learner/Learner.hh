@@ -32,8 +32,8 @@ public:
     enum EntangType {Init, Goal};
 
     // todo: put in settings
-    double flawRatio = .3;
-    double macroFlawRatio = 0.8;
+    double flawRatio = .5;
+    double macroFlawRatio = .95;
 
     //MacroList IteratePlans(std::vector<std::pair<SASPlan, PDDLInstance*>> plans);
     MacroList IteratePlans(PlanGenerator gen);

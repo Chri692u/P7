@@ -65,14 +65,17 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
     for (string o: ops){
         for(auto act : pddlActs){
             if(act.name == o) {
-                if (flawRatio <= (float) initViolations.at(o) / (float) os.at(o)){
+                double initFlaw = ((double) initViolations.at(o)) / ((double) os.at(o));
+                double goalFlaw = ((double) goalViolations.at(o)) / ((double) os.at(o));
+                if (flawRatio <= initFlaw){
                     entanglements.push_back(pair<PDDLAction, int>{act, Init});
                 }
 
-                if (flawRatio <= (float) goalViolations.at(o) / (float) os.at(o)){
+                if (flawRatio <= goalFlaw){
                     entanglements.push_back(pair<PDDLAction, int>{act, Goal});
                 }
             }
+            break;
         }
     }
     
@@ -170,29 +173,6 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
         for (int j = acts.size(); j < plan.actions.size(); ++j) {
             unordered_map<string, int> macroIndices;
             unordered_map<string, int> mateo;
-            for (auto act : actIndices){
-                macroIndices[act.first] = 0;
-                mateo[act.first] = 0;
-                for (int k = 0; j > k; ++k){
-                    if (plan.actions.at(k).name == act.first && act.second.size() > macroIndices[act.first]){
-                        ++macroIndices[act.first];
-                    }
-                }
-                for(auto _act : acts){
-                    if(_act.name == act.first){
-                        ++mateo[_act.name];
-                    }
-                }
-            }
-
-            bool skip = false;
-            for (auto act : macroIndices) {
-                if (mateo[act.first] < act.second)
-                    skip = true;
-            }
-
-            if(skip) 
-                continue;
 
             // add candidate to totalcandidatecounts
             if (totalCandidateCount.contains(plan.actions.at(j).name))
@@ -206,13 +186,37 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, Macro acts, vector<SASPlan>
                 else
                     candidateCount[plan.actions.at(j).name] = 1;
             }
+
+            // for (auto act : actIndices){
+            //     macroIndices[act.first] = 0;
+            //     mateo[act.first] = 0;
+            //     for (int k = 0; j > k; ++k){
+            //         if (plan.actions.at(k).name == act.first && act.second.size() > macroIndices[act.first]){
+            //             ++macroIndices[act.first];
+            //         }
+            //     }
+            //     for(auto _act : acts){
+            //         if(_act.name == act.first){
+            //             ++mateo[_act.name];
+            //         }
+            //     }
+            // }
+
+            // bool skip = false;
+            // for (auto act : macroIndices) {
+            //     if (mateo[act.first] < act.second)
+            //         skip = true;
+            // }
+
+            // if(skip) 
+            //     continue;
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
         // for each action j check if j is dependent on actions in any of [acts]
         // if true add chain candidates
     }
     for (auto c : candidateCount) {
-        float r = 1 - ((float) candidateCount[c.first]) / ((float) totalCandidateCount[c.first]);
+        double r = 1 - ((double) candidateCount[c.first]) / ((double) totalCandidateCount[c.first]);
         if (r <= macroFlawRatio) {
             Macro mark;
             for (auto emilia : acts) {
