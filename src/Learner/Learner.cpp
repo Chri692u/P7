@@ -370,19 +370,19 @@ bool Learner::checkPredicates(PDDLInstance &pddl, MacroT acts, SASAction sAct, i
             
             for (auto lit : literals){
                 if(lit.args.size() == 1){
-                    if(state.ContainsFact(lit.predicateIndex, pddl.problem->objectMap.at(sAct.parameters.at(0)))){
+                    if(state.ContainsFact(lit.predicateIndex, pddl.problem->objectMap.at(sAct.parameters.at(lit.args[0])))){
                         return true;
                     }
                 } else if(lit.args.size() == 2){
-                    pair<unsigned int, unsigned int> binaryFact = make_pair(pddl.problem->objectMap.at(sAct.parameters.at(0)),
-                                                                            pddl.problem->objectMap.at(sAct.parameters.at(1)));
+                    pair<unsigned int, unsigned int> binaryFact = make_pair(pddl.problem->objectMap.at(sAct.parameters.at(lit.args.at(0))),
+                                                                            pddl.problem->objectMap.at(sAct.parameters.at(lit.args.at(1))));
                     if (state.ContainsFact(lit.predicateIndex, binaryFact)){
                         return true;
                     }
                 } else {
                     vector<unsigned int> multiFact;
-                    for (string arg : sAct.parameters){
-                        multiFact.push_back(pddl.problem->objectMap.at(arg));
+                    for (int i = 0; i < sAct.parameters.size(); ++i){
+                        multiFact.push_back(pddl.problem->objectMap.at(sAct.parameters.at(lit.args.at(i))));
                     }
                     if(state.ContainsFact(lit.predicateIndex, new MultiFact(multiFact))){
                         return true;

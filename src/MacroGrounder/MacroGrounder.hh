@@ -1,6 +1,7 @@
 #include "../Walker/Path.hpp"
 #include "../EntanglementFinder/EntanglementOccurance.hh"
 #include "../IntermediatePDDL/PDDLInstance.hh"
+#include <unordered_map>
 
 class MacroGrounder {
 public:
@@ -16,6 +17,6 @@ public:
     std::vector<EntanglementOccurance> WalkerWheelchair(std::vector<Path> &paths);
     MacroGrounder(RunData data, std::vector<std::vector<PDDLAction>> &macs) : Data(data), macros(macs) {};
 private:
-    int GetGoalsMet(std::vector<PDDLActionInstance> &seq);
-    std::vector<EntanglementOccurance> GetTop(std::vector<std::vector<EntanglementOccurance>>);
+    bool CompareMacros(EntanglementOccurance m1, EntanglementOccurance m2);
+    std::vector<EntanglementOccurance> GetTop(std::vector<EntanglementOccurance> &macs);
 };

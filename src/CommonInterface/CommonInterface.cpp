@@ -232,7 +232,7 @@ enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 	if (!convertPDDLFormatStep.RanWithoutErrors)
 		return CommonInterface::RunResult::ErrorsEncountered;
 
-	if (!isDirect) {
+	if (!isDirect && config.GetItem<vector<string>>("reformulator").at(reformulatorIndex) != "sameoutput") {
 		auto sasGenerator = GenerateLearningPlans(config.GetItem<filesystem::path>("domain"));
 		auto macroList = LearnFromPlans(sasGenerator.Data);
 
