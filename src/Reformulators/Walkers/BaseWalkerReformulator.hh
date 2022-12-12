@@ -16,12 +16,13 @@
 #include "../../EntanglementFinder/EntanglementEvaluatorModifiers.hh"
 #include "../../MacroGenerator/MacroGenerator.hh"
 #include "../../MacroGenerator/InstanceGenerator.hh"
+#include "../../MacroGrounder/MacroGrounder.hh"
 
 
 class BaseWalkerReformulator : public BaseReformulator {
 public:
     BaseWalkerReformulator(Config *config, RunReport *report) : BaseReformulator(config, report) {};
-	PDDLInstance ReformulatePDDL(PDDLInstance *instance) override;
+	PDDLInstance ReformulatePDDL(PDDLInstance *instance, std::vector<std::vector<PDDLAction>> &macs) override;
     SASPlan RebuildSASPlan(PDDLInstance *instance, SASPlan* reformulatedSAS) override;
 
 protected:
@@ -34,9 +35,10 @@ private:
     ProgressBarHelper* walkerBar;
 
     void FindPaths(PDDLInstance *instance, bool debugMode);
-    std::vector<EntanglementOccurance> FindEntanglements(PDDLInstance* instance, bool debugMode);
+    std::vector<EntanglementOccurance> FindEntanglements(PDDLInstance* instance, std::vector<std::vector<PDDLAction>> &macs, bool debugMode);
     EntanglementFinder GetEntanglementFinder(bool debugMode);
-    EntanglementEvaluator GetEntanglementEvaluator();
+    EntanglementEvaluator GetEntanglementEvaluator(std::vector<std::vector<PDDLAction>> &macs);
+    MacroGrounder GetMacroGrounder(std::vector<std::vector<PDDLAction>> &macs);
     std::vector<Macro> GenerateMacros(PDDLInstance* instance, std::vector<EntanglementOccurance>* candidates, bool debugMode);
     PDDLInstance GenerateMacroInstance(PDDLInstance* instance, std::vector<Macro> *macros, bool debugMode);
 

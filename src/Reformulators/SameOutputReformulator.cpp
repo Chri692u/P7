@@ -2,7 +2,7 @@
 
 using namespace std;
 
-PDDLInstance SameOutputReformulator::ReformulatePDDL(PDDLInstance* instance) {
+PDDLInstance SameOutputReformulator::ReformulatePDDL(PDDLInstance* instance, vector<vector<PDDLAction>> &macs) {
 	ConsoleHelper::PrintWarning("Note, this reformulator is only for testing! Simply gives the same result back.", 2);
 
 	PDDLInstance newInstance(instance->domain, instance->problem);

@@ -1,10 +1,10 @@
 #include "BaseWalkerReformulator.hh"
 
-PDDLInstance BaseWalkerReformulator::ReformulatePDDL(PDDLInstance* instance) {
+PDDLInstance BaseWalkerReformulator::ReformulatePDDL(PDDLInstance* instance, std::vector<std::vector<PDDLAction>> &macs) {
     bool debugMode = Configs->GetItem<bool>("debugmode");
 
     FindPaths(instance, debugMode);
-    std::vector<EntanglementOccurance> candidates = FindEntanglements(instance, debugMode);
+    std::vector<EntanglementOccurance> candidates = FindEntanglements(instance, macs, debugMode);
     GenerateMacros(instance, &candidates, debugMode);
     PDDLInstance macroInstance = GenerateMacroInstance(instance, &macros, debugMode);
 
@@ -21,18 +21,23 @@ void BaseWalkerReformulator::FindPaths(PDDLInstance *instance, bool debugMode) {
 		PrintWalkerDebugData(ellapsed);
 }
 
-std::vector<EntanglementOccurance> BaseWalkerReformulator::FindEntanglements(PDDLInstance* instance, bool debugMode) {
-    EntanglementFinder entanglementFinder = GetEntanglementFinder(debugMode);
-    EntanglementEvaluator entanglementEvaluator = GetEntanglementEvaluator();
+std::vector<EntanglementOccurance> BaseWalkerReformulator::FindEntanglements(PDDLInstance* instance, std::vector<std::vector<PDDLAction>> &macs, bool debugMode) {
+    //EntanglementFinder entanglementFinder = GetEntanglementFinder(debugMode);
+    //EntanglementEvaluator entanglementEvaluator = GetEntanglementEvaluator(macs);
     int entangleID = Report->Begin("Finding Entanglements", ReportID);
-    auto candidates = entanglementFinder.FindEntangledCandidates(&paths);
-    auto sanitizedCandidates = entanglementEvaluator.EvaluateAndSanitizeCandidates(candidates);
+    //auto candidates = entanglementFinder.FindEntangledCandidates(&paths);
+    //auto sanitizedCandidates = entanglementEvaluator.EvaluateAndSanitizeCandidates(candidates);
+
+	MacroGrounder groundings = GetMacroGrounder(macs);
+	groundings.pddl = instance;
+	auto candidates = groundings.WalkerWheelchair(paths);
+
 	double ellapsed = Report->Stop();
-	if (debugMode)
-		PrintEntanglerDebugData(ellapsed, &sanitizedCandidates, &entanglementFinder, &entanglementEvaluator);
-	if (Configs->GetItem<bool>("printentanglersteps"))
-		PrintEntanglerSteps(&sanitizedCandidates, instance);
-    return sanitizedCandidates;
+	//if (debugMode)
+		//PrintEntanglerDebugData(ellapsed, &sanitizedCandidates, &entanglementFinder, &entanglementEvaluator);
+	//if (Configs->GetItem<bool>("printentanglersteps"))
+		//PrintEntanglerSteps(&sanitizedCandidates, instance);
+    return candidates;
 }
 
 EntanglementFinder BaseWalkerReformulator::GetEntanglementFinder(bool debugMode) {
@@ -65,12 +70,12 @@ EntanglementFinder BaseWalkerReformulator::GetEntanglementFinder(bool debugMode)
 	return ef;
 }
 
-EntanglementEvaluator BaseWalkerReformulator::GetEntanglementEvaluator() {
+EntanglementEvaluator BaseWalkerReformulator::GetEntanglementEvaluator(std::vector<std::vector<PDDLAction>> &macs) {
     EntanglementEvaluator::RunData runData;
 	runData.MinimumQualityPercent = Configs->GetItem<double>("minimumQualityPercent");
 	runData.MaxCandidates = Configs->GetItem<int>("maxCandidates");
 
-	auto ee = EntanglementEvaluator(runData);
+	auto ee = EntanglementEvaluator(runData, macs);
 	if (Configs->GetItem<std::string>("entanglerLengthModifier") == "lengthBias")
 		ee.LengthModifier = EntanglementEvaluatorModifiers::LengthModifiers::LengthBias;
 	else if (Configs->GetItem<std::string>("entanglerLengthModifier") == "none")
@@ -80,6 +85,16 @@ EntanglementEvaluator BaseWalkerReformulator::GetEntanglementEvaluator() {
 		ee.OccuranceModifier = EntanglementEvaluatorModifiers::OccuranceModifiers::None;
 	else if (Configs->GetItem<std::string>("entanglerOccuranceModifier") == "lowOccuranceBias")
 		ee.OccuranceModifier = EntanglementEvaluatorModifiers::OccuranceModifiers::LowOccuranceBias;
+
+	return ee;
+}
+
+MacroGrounder BaseWalkerReformulator::GetMacroGrounder(std::vector<std::vector<PDDLAction>> &macs) {
+    MacroGrounder::RunData runData;
+	runData.MinimumQualityPercent = Configs->GetItem<double>("minimumQualityPercent");
+	runData.MaxCandidates = Configs->GetItem<int>("maxCandidates");
+
+	auto ee = MacroGrounder(runData, macs);
 
 	return ee;
 }

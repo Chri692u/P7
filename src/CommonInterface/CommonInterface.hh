@@ -16,7 +16,7 @@
 #include "../SASParser/SASParser.hh"
 #include "../Config/Config.hh"
 #include "../DownwardRunner/DownwardRunner.hh"
-#include "../PlanGenerator/PlanGenerator.hh"
+#include "../Learner/Learner.hh"
 #include "../PlanValidators/PlanValidator.hh"
 #include "../IntermediatePDDL/PDDLInstance.hh"
 #include "../IntermediatePDDL/PDDLConverter.hh"
@@ -49,14 +49,15 @@ private:
 	InterfaceStep<void> CheckFilePaths();
 	InterfaceStep<PDDLDriver*> ParsePDDLFiles();
 	InterfaceStep<PDDLInstance*> ConvertPDDLFormat(PDDLDriver* driver);
-	InterfaceStep<void> RunIteratively(BaseReformulator* reformulator, PDDLInstance* instance);
+	InterfaceStep<void> RunIteratively(BaseReformulator* reformulator, PDDLInstance* instance, MacroList &macs);
 	InterfaceStep<void> RunDirect(BaseReformulator* reformulator, PDDLInstance* instance);
-	InterfaceStep<DownwardRunner::DownwardRunnerResult> RunSingle(BaseReformulator* reformulator, PDDLInstance* instance, int reportID, int reformulatorTimeLimit, int downwardTimeLimit);
+	InterfaceStep<DownwardRunner::DownwardRunnerResult> RunSingle(BaseReformulator* reformulator, PDDLInstance* instance, MacroList &macs, int reportID, int reformulatorTimeLimit, int downwardTimeLimit);
 	InterfaceStep<void> ValidatePlans(std::string domainFile, std::string problemFile, std::string sasFile, std::string reportName);
 	InterfaceStep<SASPlan> ParseSASPlan();
 	InterfaceStep<SASPlan> RebuildSASPlan(SASPlan* reformulatedSASPlan, BaseReformulator* reformulator, PDDLInstance* instance);
 	InterfaceStep<void> GenerateNewSASPlan(SASPlan outputPlan);
-	InterfaceStep<void> GenerateLearningPlans(std::string path);
+	InterfaceStep<PlanGenerator> GenerateLearningPlans(std::string path);
+	InterfaceStep<MacroList> LearnFromPlans(PlanGenerator &sasGenerator);
 
 	RunReport* Report;
 	Config config;

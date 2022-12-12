@@ -1,5 +1,4 @@
 #include <catch2/catch_test_macros.hpp>
-
 #include "../../src/Learner/Learner.hh"
 
 const std::string TAG = "Learner ";
@@ -10,7 +9,7 @@ TEST_CASE(TAG + "Domain = gripper"){
     Learner learner;
 
 	std::filesystem::path fileName = std::filesystem::path("baseSettings.ini");
-    std::string domainPath = "miconic";
+    std::string domainPath = "gripper/domain.pddl";
 	config.ParseConfigFile(fileName); 
     
     // set up learner

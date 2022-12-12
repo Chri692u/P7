@@ -7,6 +7,7 @@
 #include "../PDDLParser/pddldriver.hh"
 #include "../IntermediatePDDL/PDDLConverter.hh"
 #include "../IntermediatePDDL/PDDLInstance.hh"
+#include "../SASCodeGenerator/SASCodeGenerator.hh"
 
 class PlanGenerator {
 public:

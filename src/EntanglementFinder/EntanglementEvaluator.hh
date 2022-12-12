@@ -20,11 +20,12 @@ public:
 		int MaxCandidates = 1;
 	};
 
+	std::vector<std::vector<PDDLAction>> macros;
 	RunData Data;
 
 	unsigned int RemovedCandidates() const { return _RemovedCandidates; }
 
-	EntanglementEvaluator(RunData data) : Data(data) {};
+	EntanglementEvaluator(RunData data, std::vector<std::vector<PDDLAction>> &macs) : Data(data), macros(macs) {};
 
 	/// <summary>
 	/// Find entanglement candidates from a vector of paths
@@ -57,6 +58,8 @@ private:
 	/// Sorts the candidates into a more usefull vector instead.
 	/// </summary>
 	std::vector<EntanglementOccurance> SortCandidates(std::unordered_map<size_t, EntanglementOccurance>* candidates);
+	// Filter fake candidates away
+	std::vector<EntanglementOccurance> CandidateFilter(std::vector<EntanglementOccurance> &candidates);
 };
 
 #endif

@@ -65,7 +65,7 @@ InterfaceStep<PDDLInstance*> CommonInterface::ConvertPDDLFormat(PDDLDriver* driv
 	return InterfaceStep<PDDLInstance*>(instance);
 }
 
-InterfaceStep<void> CommonInterface::RunIteratively(BaseReformulator* reformulator, PDDLInstance* instance) {
+InterfaceStep<void> CommonInterface::RunIteratively(BaseReformulator* reformulator, PDDLInstance* instance, MacroList &macs) {
 	int timeLeft = config.GetItem<int>("totalTimeLimit") * 1000;
 	int currentIncrementTimeLimit = config.GetItem<int>("startIncrement") * 1000;
 
@@ -81,7 +81,7 @@ InterfaceStep<void> CommonInterface::RunIteratively(BaseReformulator* reformulat
 		ConsoleHelper::PrintInfo("Iteration " + to_string(counter) + "(reformulator: " + to_string(reformulatorTimeLimit) + "ms, downward: " + to_string(downwardTimeLimit) + "ms)");
 
 		// Run an iteration of our reformulation method
-		auto result = RunSingle(reformulator, instance, iterationID, reformulatorTimeLimit, downwardTimeLimit);
+		auto result = RunSingle(reformulator, instance, macs, iterationID, reformulatorTimeLimit, downwardTimeLimit);
 		Report->Stop(iterationID);
 		if (result.RanWithoutErrors) {
 			// If we found a solution, stop iterating
@@ -110,8 +110,9 @@ InterfaceStep<void> CommonInterface::RunIteratively(BaseReformulator* reformulat
 InterfaceStep<void> CommonInterface::RunDirect(BaseReformulator* reformulator, PDDLInstance* instance) {
 	int directProcess = Report->Begin("Solving Problem");
 	int timeLimit = config.GetItem<int>("totalTimeLimit") * 1000;
+	MacroList macNoCheese;
 
-	if (RunSingle(reformulator, instance, directProcess, timeLimit, timeLimit).RanWithoutErrors) {
+	if (RunSingle(reformulator, instance, macNoCheese, directProcess, timeLimit, timeLimit).RanWithoutErrors) {
 		Report->Stop(directProcess, "true");
 		return InterfaceStep<void>();
 	}
@@ -121,12 +122,12 @@ InterfaceStep<void> CommonInterface::RunDirect(BaseReformulator* reformulator, P
 	}
 }
 
-InterfaceStep<DownwardRunner::DownwardRunnerResult> CommonInterface::RunSingle(BaseReformulator* reformulator, PDDLInstance* instance, int reportID, int reformulatorTimeLimit, int downwardTimeLimit) {
+InterfaceStep<DownwardRunner::DownwardRunnerResult> CommonInterface::RunSingle(BaseReformulator* reformulator, PDDLInstance* instance, MacroList &macs, int reportID, int reformulatorTimeLimit, int downwardTimeLimit) {
 	ConsoleHelper::PrintInfo("Reformulating PDDL...", 1);
 	int reformulationID = Report->Begin("Reformulation of PDDL", reportID);
 	reformulator->ReportID = reformulationID;
 	reformulator->TimeLimit = reformulatorTimeLimit;
-	PDDLInstance reformulatedInstance = reformulator->ReformulatePDDL(instance);
+	PDDLInstance reformulatedInstance = reformulator->ReformulatePDDL(instance, macs);
 	Report->Stop();
 	Report->Stop(reformulationID);
 
@@ -190,19 +191,26 @@ InterfaceStep<void> CommonInterface::GenerateNewSASPlan(SASPlan outputPlan) {
 	return InterfaceStep<void>();
 }
 
-InterfaceStep<void> CommonInterface::GenerateLearningPlans(string path){
+InterfaceStep<PlanGenerator> CommonInterface::GenerateLearningPlans(string path){
 	ConsoleHelper::PrintInfo("Generating SAS Plans for learning...");
 	Report->Begin("Learning SAS plans");
 	PlanGenerator sasGenerator = PlanGenerator();
 	sasGenerator.GenerateSASPlans(config, path);
 	Report->Stop();
-	return InterfaceStep<void>();
+	return InterfaceStep<PlanGenerator>(sasGenerator);
 }
-/*
-InterfaceStep<void> CommonInterface::LearnPlans(){
-	return
+
+
+InterfaceStep<MacroList> CommonInterface::LearnFromPlans(PlanGenerator &sasGenerator){
+	ConsoleHelper::PrintInfo("Learning from plans XD...");
+	Report->Begin("Learning from plans");
+	Learner mob = Learner();
+	MacroList macros = mob.IteratePlans(sasGenerator);
+	Report->Stop();
+	return InterfaceStep<MacroList>(macros);
 }
-*/
+
+
 
 enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 
@@ -224,8 +232,12 @@ enum CommonInterface::RunResult CommonInterface::Run(int reformulatorIndex) {
 	if (!convertPDDLFormatStep.RanWithoutErrors)
 		return CommonInterface::RunResult::ErrorsEncountered;
 
-	if (!isDirect) {
-		auto runIterativelyStep = RunIteratively(getReformulatorStep.Data, convertPDDLFormatStep.Data);
+	if (!isDirect && config.GetItem<vector<string>>("reformulator").at(reformulatorIndex) != "sameoutput") {
+		auto sasGenerator = GenerateLearningPlans(config.GetItem<filesystem::path>("domain"));
+		auto macroList = LearnFromPlans(sasGenerator.Data);
+
+		auto runIterativelyStep = RunIteratively(getReformulatorStep.Data, convertPDDLFormatStep.Data, macroList.Data);
+
 		if (!runIterativelyStep.RanWithoutErrors)
 			return CommonInterface::RunResult::ErrorsEncountered;
 	}
