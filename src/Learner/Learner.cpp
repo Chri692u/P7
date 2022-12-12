@@ -74,8 +74,8 @@ MacroList Learner::IteratePlans(PlanGenerator generator){
                 if (flawRatio <= goalFlaw){
                     entanglements.push_back(pair<PDDLAction, int>{act, Goal});
                 }
+                break;
             }
-            break;
         }
     }
     
@@ -100,7 +100,6 @@ void Learner::AnalyzePlan(PDDLInstance &pddl, SASPlan plan){
         bool notViolated = false;
 
         //check if goal state does not violate outer entanglements
-        // BIG EXPLOSION ALLAH PROBLEM IS WRONG XD
         if (checkPredicates(pddl, pddlActs, action, Goal)){
             notViolated = true;
         }
@@ -160,7 +159,6 @@ MacroList Learner::descendActions(PDDLInstance &pddl, vector<pair<PDDLAction, in
     */
 }
 
-// fix this 🥺
 MacroList Learner::GetCandidates(PDDLDomain &domain, MacroT acts, vector<SASPlan> plans){
     MacroList candidates;
     
@@ -168,16 +166,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, MacroT acts, vector<SASPlan
     unordered_map<string, int> totalCandidateCount;
 
     for (auto plan : plans) {
-        unordered_map<string, vector<int>> actIndices;
-        for (auto act : acts) {
-            actIndices[act.name] = {};
-            for (int i = 0; i < plan.actions.size(); ++i) {
-                if (plan.actions.at(i).name == act.name) {
-                    actIndices[act.name].push_back(i);
-                }
-            }
-        }
-        for (int j = acts.size(); j < plan.actions.size(); ++j) {
+        for (int j = acts.size()-1; j < plan.actions.size(); ++j) {
             unordered_map<string, int> macroIndices;
             unordered_map<string, int> mateo;
 
@@ -193,30 +182,6 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, MacroT acts, vector<SASPlan
                 else
                     candidateCount[plan.actions.at(j).name] = 1;
             }
-
-            // for (auto act : actIndices){
-            //     macroIndices[act.first] = 0;
-            //     mateo[act.first] = 0;
-            //     for (int k = 0; j > k; ++k){
-            //         if (plan.actions.at(k).name == act.first && act.second.size() > macroIndices[act.first]){
-            //             ++macroIndices[act.first];
-            //         }
-            //     }
-            //     for(auto _act : acts){
-            //         if(_act.name == act.first){
-            //             ++mateo[_act.name];
-            //         }
-            //     }
-            // }
-
-            // bool skip = false;
-            // for (auto act : macroIndices) {
-            //     if (mateo[act.first] < act.second)
-            //         skip = true;
-            // }
-
-            // if(skip) 
-            //     continue;
         }
         // iteratively find dependent actions which are in current macro (acts) -> [acts]
         // for each action j check if j is dependent on actions in any of [acts]
@@ -260,62 +225,13 @@ bool Learner::checkDependent(PDDLDomain &domain, SASPlan &plan, int j, MacroT ma
         }
         // no need to continue if none of the macro actions share predicates
         if (!charles) break;
-        // check if actions between i and j have effects which are in intersection
-        // vector<pair<int, vector<string>>> olivia;
-        // for (int t = i + 1; t < j; ++t) {
-        //     PDDLAction actT = domain.getAction(plan.actions.at(t).name);
-        //     for (auto addT : actT.GetAdds()) {
-        //         vector<string> predparams;
-        //         for (auto p : addT.args) {
-        //             predparams.push_back(actT.parameters.at(p));
-        //         }
-        //         olivia.push_back(make_pair(addT.predicateIndex, predparams));
-        //     }
-        // }
-        // // check if intersection larry isnt a subset of olivia
-        // bool isSubSet = false;
-        //     for (auto iPair : larry) {
-        //     for (auto tPair : olivia) {
-        //         if (iPair.first != tPair.first) continue;
-        //         if (iPair.second != tPair.second) continue;
-        //         isSubSet = true;
-        //     }
-        // }
         // count down k
         --k;
         // set j to i, this makes it so all actions in macro are checked
         j = i;    
     }
 
-    return k == EXIT_SUCCESS-1;
-}
-
-// this never called
-MacroList Learner::FilterCandidates(MacroList candidates){
-    MacroList returnList;
-    for(MacroT candidate : candidates){
-        returnList.push_back(RepetitiveFilter(candidate));
-    }
-    /*Check uninformative*/
-    return returnList;
-}
-
-// this dont work
-MacroT Learner::RepetitiveFilter(MacroT candidate){
-    if (candidate.size() % 2 != 0) return candidate;
-    for(int sweep = 1; sweep < candidate.size() / 2; ++sweep){
-        MacroT range = lookupRanges(0, sweep, candidate);
-        for(int i = sweep-1; candidate.size() > i; i+=sweep){
-            MacroT cmpr = lookupRanges(i, i+sweep-1, candidate);
-            if(range != cmpr){
-                break;
-            }
-            if (i == candidate.size()+1){
-                return range;
-            }
-        }
-    }
-    return candidate;
+    return k == -1;
 }
 
 vector<pair<int, vector<string>>> Learner::predIntersect(PDDLAction iAct, SASAction iSASAct, PDDLAction jAct, SASAction jSASAct) {
