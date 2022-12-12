@@ -166,7 +166,7 @@ MacroList Learner::GetCandidates(PDDLDomain &domain, MacroT acts, vector<SASPlan
     unordered_map<string, int> totalCandidateCount;
 
     for (auto plan : plans) {
-        for (int j = acts.size()-1; j < plan.actions.size(); ++j) {
+        for (int j = acts.size(); j < plan.actions.size(); ++j) {
             unordered_map<string, int> macroIndices;
             unordered_map<string, int> mateo;
 
