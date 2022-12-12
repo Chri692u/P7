@@ -13,7 +13,7 @@ TEST_CASE(TAG + "Domain = gripper"){
 	config.ParseConfigFile(fileName); 
     
     // set up learner
-    gen.GenerateSASPlans(config, domainPath);
-    std::vector<std::vector<PDDLAction>> ml = learner.IteratePlans(gen);
+    //gen.GenerateSASPlans(config, domainPath);
+    //std::vector<std::vector<PDDLAction>> ml = learner.IteratePlans(gen);
     REQUIRE(1==0);
 }
