@@ -35,10 +35,11 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
         fs::create_directory(cdstring + domainName + "Plans");
         unordered_set<int> attempts;
         for(int i = 0; i < problemAmount && i < filePaths.size()-1; ++i){
-            int attempt = rand() % filePaths.size();
-            // least retarded c++ code
+            // int attempt = rand() % filePaths.size();
+            // // least retarded c++ code
+            int attempt = i;
             while (filePaths[attempt].substr(filePaths[attempt].find_last_of("/\\") + 1) == "domain.pddl" || attempts.contains(attempt)){
-                attempt = rand() % filePaths.size();
+                attempt += 1;
             }
             attempts.emplace(attempt);
             PDDLDriver* driver = new PDDLDriver();
