@@ -24,9 +24,15 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
     for (const auto & entry : fs::directory_iterator(domainFolder)){
         filePaths.push_back(relativePath / entry.path());
     }
-    if (!fs::is_directory(domainName + "Plans") || !fs::exists(domainName + "Plans")) {
+
+    string cdstring = "";
+    while (!fs::is_directory(cdstring + "src") || !fs::exists(cdstring + "src")) {
+        cdstring = cdstring + "../";
+    }
+
+    if (!fs::is_directory(cdstring + domainName + "Plans") || !fs::exists(cdstring + domainName + "Plans")) {
         cout << "didnt find plans, running downward" << endl;
-        fs::create_directory(domainName + "Plans");
+        fs::create_directory(cdstring + domainName + "Plans");
         unordered_set<int> attempts;
         for(int i = 0; i < problemAmount && i < filePaths.size()-1; ++i){
             int attempt = rand() % filePaths.size();
@@ -52,17 +58,26 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
             SASPlan plan = parser.Parse(relativePath / "sas_plan");
             sasplans.push_back(plan);
             // create plan file
-            ofstream ffs(domainName + "Plans/" + to_string(attempt));
+            ofstream ffs(cdstring + domainName + "Plans/" + to_string(attempt));
             ffs.close();
             SASCodeGenerator sascodegen;
-            sascodegen.GenerateCode(plan, domainName + "Plans/" + to_string(attempt));
+            sascodegen.GenerateCode(plan, cdstring + domainName + "Plans/" + to_string(attempt));
         }
     } else {
         cout << "found domain sas plans" << endl;
+
         vector<int> attempts;
-        for (const auto & entry : fs::directory_iterator(domainName + "Plans")){
-            string path = entry.path();
-            attempts.push_back(stoi(path.substr(path.find_last_of("/\\") + 1)));
+        bool flag = false;
+        while (!flag){
+            for (const auto & entry : fs::directory_iterator(cdstring + domainName + "Plans")){
+                string path = entry.path();
+                attempts.push_back(stoi(path.substr(path.find_last_of("/\\") + 1)));
+            }
+            if (attempts.size() == problemAmount) {
+                flag = true;
+            } else {
+                attempts.clear();
+            }
         }
         for (int i = 0; i < attempts.size(); ++i) {
             int attempt = attempts.at(i);
@@ -77,7 +92,7 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
             problems.push_back(PDDLConverter::Convert(&(domains.at(i)), driver->problem));
 
             //Save the plan
-            SASPlan plan = parser.Parse(relativePath / (domainName + "Plans") / to_string(attempt));
+            SASPlan plan = parser.Parse(relativePath / (cdstring + domainName + "Plans") / to_string(attempt));
             sasplans.push_back(plan);
         }
     }
