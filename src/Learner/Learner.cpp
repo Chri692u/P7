@@ -39,13 +39,15 @@ using namespace std;
 //     return descendActions(*(plans.at(0).second, entanglements, sasPlans);
 // }
 
-MacroList Learner::IteratePlans(PlanGenerator generator){
+MacroList Learner::IteratePlans(PlanGenerator generator, Config &config){
     vector<vector<pair<PDDLAction, int>>> acts;
     MacroList macros;
     vector<SASPlan> sasPlans;
     PDDLDomain domain = generator.domains.at(0);
     const MacroT pddlActs = domain.actions;
     vector<pair<PDDLAction, int>> entanglements;
+    flawRatio = config.GetItem<double>("flawRatio");
+    macroFlawRatio = config.GetItem<double>("macroFlawRatio");
 
     for (auto act : pddlActs) {
         os.emplace(act.name, 0);

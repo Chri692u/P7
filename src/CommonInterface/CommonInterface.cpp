@@ -205,7 +205,7 @@ InterfaceStep<MacroList> CommonInterface::LearnFromPlans(PlanGenerator &sasGener
 	ConsoleHelper::PrintInfo("Learning from plans XD...");
 	Report->Begin("Learning from plans");
 	Learner mob = Learner();
-	MacroList macros = mob.IteratePlans(sasGenerator);
+	MacroList macros = mob.IteratePlans(sasGenerator, config);
 	Report->Stop();
 	return InterfaceStep<MacroList>(macros);
 }
