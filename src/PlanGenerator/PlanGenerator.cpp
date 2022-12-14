@@ -11,7 +11,7 @@ void PlanGenerator::GenerateSASPlans(Config config, string domainFile) {
     DownwardRunner runner = DownwardRunner();
     SASParser parser = SASParser();
 
-    int problemAmount = config.GetItem<int>("problemAmount");
+    int problemAmount = 5;
     int NoTimeLimit = -1;
 
     string domainFolder = domainFile.substr(0, domainFile.find_last_of("\\/"));
