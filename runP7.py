@@ -125,6 +125,10 @@ for settingsFile in settingsFiles:
     add_absolute_report(experiment)
     add_taskwise_reports(experiment, reformulators)
 
+    for reformulator in reformulators:
+        if (reformulator != "sameoutput"):
+            add_scatterplot_report(experiment, reformulator)
+
     experiment.run_steps()
 
     shutil.move(experiment.eval_dir, "LabReports/" + settingsFile.replace(".ini",""))

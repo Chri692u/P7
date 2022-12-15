@@ -1,5 +1,6 @@
 from downward.reports.absolute import AbsoluteReport
 from downward.reports.taskwise import TaskwiseReport
+from downward.reports.scatter import ScatterPlotReport
 
 import json
 import csv
@@ -77,6 +78,17 @@ def add_taskwise_reports(experiment, reformulators):
         experiment.add_report(TaskwiseReport(attributes=["*_ms"],filter_algorithm=[reformulator]), outfile=reformulator+"_report_ms.html")
         experiment.add_report(TaskwiseReport(attributes=["*_procent"],filter_algorithm=[reformulator]), outfile=reformulator+"_report_procent.html")
         experiment.add_report(TaskwiseReport(attributes=["*_notes"],filter_algorithm=[reformulator]), outfile=reformulator+"_report_notes.html")
+
+def add_scatterplot_report(experiment, reformulator):
+        experiment.add_report(
+            ScatterPlotReport(
+                attributes=["expansions"],
+                filter_algorithm=[reformulator,"sameoutput"],
+                format="png",  # Use "tex" for pgfplots output.
+            ),
+            name="Expansions Scatterplot sameoutput X " +reformulator,
+        )
+
 
 def add_parsers(experiment):
     EXITCODE_PARSER = os.path.join(os.path.dirname(os.path.abspath(__file__)),"ExitcodeParser.py")
