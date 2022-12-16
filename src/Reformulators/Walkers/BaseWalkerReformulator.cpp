@@ -91,7 +91,7 @@ EntanglementEvaluator BaseWalkerReformulator::GetEntanglementEvaluator(std::vect
 
 MacroGrounder BaseWalkerReformulator::GetMacroGrounder(std::vector<std::vector<PDDLAction>> &macs) {
     MacroGrounder::RunData runData;
-	runData.MinimumQualityPercent = Configs->GetItem<double>("minimumQualityPercent");
+	runData.MinimumQualityPercent = 0;
 	runData.MaxCandidates = Configs->GetItem<int>("maxCandidates");
 
 	auto ee = MacroGrounder(runData, macs);
