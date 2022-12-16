@@ -202,7 +202,7 @@ InterfaceStep<PlanGenerator> CommonInterface::GenerateLearningPlans(string path)
 
 
 InterfaceStep<MacroList> CommonInterface::LearnFromPlans(PlanGenerator &sasGenerator){
-	ConsoleHelper::PrintInfo("Learning from plans XD...");
+	ConsoleHelper::PrintInfo("Learning from plans...");
 	Report->Begin("Learning from plans");
 	Learner mob = Learner();
 	MacroList macros = mob.IteratePlans(sasGenerator, config);
